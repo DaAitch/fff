@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A2457034-7538-44C4-A291-75616A94BF39}</ProjectGuid>
+    <RootNamespace>fff</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)lib\x86\</OutDir>
+    <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)d</TargetName>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCL)lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)lib\x86\</OutDir>
+    <TargetExt>.lib</TargetExt>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCL)lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)lib\x86_64\</OutDir>
+    <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)d</TargetName>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCL)lib\x86_64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)lib\x86_64\</OutDir>
+    <TargetExt>.lib</TargetExt>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCL)lib\x86_64;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\fcoclFilterDesigner.h" />
+    <ClInclude Include="include\fcoclFixMonoKernelFilter.h" />
+    <ClInclude Include="include\fcoclScenary.h" />
+    <ClInclude Include="include\fcoclTFuncComputer.h" />
+    <ClInclude Include="include\fff.h" />
+    <ClInclude Include="include\fffClEnv.h" />
+    <ClInclude Include="include\fffCompiler.h" />
+    <ClInclude Include="include\fffComputingData.h" />
+    <ClInclude Include="include\fffComputingMap.h" />
+    <ClInclude Include="include\fffConvKernel.h" />
+    <ClInclude Include="include\fffCv.h" />
+    <ClInclude Include="include\fffCvDevSChBuf.h" />
+    <ClInclude Include="include\fffCvHstMChBuf.h" />
+    <ClInclude Include="include\fffCvHstMChBufPreallocated.h" />
+    <ClInclude Include="include\fffCvHstSChBuf.h" />
+    <ClInclude Include="include\fffCvUbiMChBuf.h" />
+    <ClInclude Include="include\fffDevProps.h" />
+    <ClInclude Include="include\fffFileReader.h" />
+    <ClInclude Include="include\fffICvMChBuf.h" />
+    <ClInclude Include="include\fffTesting.h" />
+    <ClInclude Include="include\fffTFuncKernel.h" />
+    <ClInclude Include="include\fffV.h" />
+    <ClInclude Include="include\fffWave.h" />
+    <ClInclude Include="include\fffWavReader.h" />
+    <ClInclude Include="include\fffWavWriter.h" />
+    <ClInclude Include="include\_fffBase.h" />
+    <ClInclude Include="include\_fffException.h" />
+    <ClInclude Include="include\_fffIPrintable.h" />
+    <ClInclude Include="include\_fffLogStream.h" />
+    <ClInclude Include="include\__fffDebugging.h" />
+    <ClInclude Include="include\__fffDevelHost.h" />
+    <ClInclude Include="include\__fffTools.h" />
+    <ClInclude Include="include\__fffTypes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\fffClEnv.cpp" />
+    <ClCompile Include="src\fffCompiler.cpp" />
+    <ClCompile Include="src\fffDevProps.cpp" />
+    <ClCompile Include="src\fffTesting.cpp" />
+    <ClCompile Include="src\_fffLogStream.cpp" />
+    <ClCompile Include="src\__fffDebugging.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cl\fffConvolution.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\fffconvolution.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
