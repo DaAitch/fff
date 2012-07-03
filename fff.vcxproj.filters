@@ -39,18 +39,6 @@
     <ClInclude Include="include\_fffLogStream.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\fcoclFilterDesigner.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fcoclFixMonoKernelFilter.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fcoclScenary.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\fcoclTFuncComputer.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\fff.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -136,5 +124,8 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="cl\fffConvolution.cpp.cl" />
+    <ClCompile Include="src\fff.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

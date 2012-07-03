@@ -42,6 +42,7 @@ local.properties
 *.sln.docstates
 
 # Build results
+doc/
 build/
 lib/
 *_i.c

@@ -1,113 +1,109 @@
+/*----------------------------------------------------------
+ *    The Fast Filtering Framework implements an LTI filter
+ *    with Khronos Group's OpenCL.
+ *    Copyright (C) 2012  Philipp Renoth
+ *----------------------------------------------------------
+ *    This program is free software: you can redistribute
+ *    it and/or modify it under the terms of the
+ *    GNU General Public License as published by the
+ *    Free Software Foundation, either version 3 of the
+ *    License, or (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will
+ *    be useful, but WITHOUT ANY WARRANTY; without even the
+ *    implied warranty of MERCHANTABILITY or
+ *    FITNESS FOR A PARTICULAR PURPOSE.
+ *    See the GNU General Public License for more details.
+ *
+ *    You should have received a copy of the
+ *    GNU General Public License along with this program.
+ *    If not, see <http://www.gnu.org/licenses/>.
+ *--------------------------------------------------------*/
 
-/****************************************************************************************/
-/**
-  * Host and device interface definitions.
-  *
-  * Since it's better/easier to have one opencl file to compile
-  * the opencl kernels and data types of host and device are
-  * defined within this file.
-  * 
-  * Preprocessor conventions:
-  *		- fff_IS_HOST has to be defined with 1 to gather the host code,
-  *			else if 0 opencl definitions with the kernels,
-  *			if not set a compile error appears
-  *		- fff_SAMPLE_DATATYPE has to be defined with the preferred
-  *			data type for processing (float, double)
-  *		- (optional) fff_KERNELDEBUG has to be defined whether each
-  *			kernel returns an array of error codes of the workers
-  *			to debug them
-  * 
-  * Access path conventions:
-  *		- fff_* can be accessed from every path
-  *			interface for remote project
-  *		- _fff_* should only be accessed from fff_* paths
-  *			e.g. fff-own debugging, helper methods
-  *		- __fff_* should only be accessed from _fff_* paths
-  *			e.g. intern debugging, low-level helper methods
-  * 
-  * Other conventions:
-  *		- Since all the code should be OpenCL C99 style there must not be
-  *			any references (e.g. &variable), but only pointers (e.g. *variable)
-  * 
-  *	Author:		Philipp Renoth <renoth@6ft.us>
-  * Date:		2012-01-12
-  *
-  *
-  *
-  *
-  *
-  *
-  *
-  */
-/****************************************************************************************/
-
+//----------------------------------------------------------
 #ifndef __fffconvolution_h_cl__included__
 #	define __fffconvolution_h_cl__included__
 
 
 #	include "../include/_fffBase.h"
 
-/****************************************************************************************/
-/* Check preprocessor definitions *******************************************************/
-/****************************************************************************************/
-
-
-/****************************************************************************************/
-/* Begin with file definitions **********************************************************/
-/****************************************************************************************/
 
 
 
-
+//----------------------------------------------------------
 	_fff_BEGIN_NAMESPACE
+//----------------------------------------------------------
 
+//----------------------------------------------------------
+// Numerical constants
+//----------------------------------------------------------
+		//! Unsigned int zero
+#		define _fff_UI_ZERO		((UInt)0)
+
+		//! Unsigned int one
+#		define _fff_UI_ONE		((UInt)1)
+
+		//! Zero sample value
+#		define _fff_SMP_ZERO	((Sample)0)
+
+		//! One sample value
+#		define _fff_SMP_ONE		((Sample)1)
+
+		//! PI as sample value
+#		define _fff_M_PI    ((Sample)3.14159265358979323846)
+
+		//! typeless zero
+#		define _fff_NULL		0
+//----------------------------------------------------------
+
+//----------------------------------------------------------
+// Some helper macros
+//----------------------------------------------------------
+
+
+		//! calculates \f$ 2^N \f$
+#		define _fff_NTH_BIT(N) \
+			(_fff_UI_ONE << (N))
+
+		//! Ceiling division, e.g \f$ 100 / 99 = 2 \f$
+#		define _fff_CEILDIV(X, N) \
+			(( (X) + (N) - 1 ) / (N))
+
+		//! Bit a position M
+#		define _fff_BITMASK(M) \
+			(_fff_NTH_BIT(M))
+
+		//! Swap two bits of \em X, with width \em W and
+		//! at position \em P
+#		define _fff_BITSWAPONLY(X,P,W) \
+			(	(((X)&_fff_BITMASK(P))<< \
+					((W)-((P)<<1)-1)) |	\
+				(((X)&_fff_BITMASK((W)-(P)-1))>> \
+					((W)-((P)<<1)-1)) )
+
+		//! Swap all bits, equals reversal operation.
+		//! \param x Bits to swap
+		//! \param w Width in bits
+		//! \return Bit reversal of the LSB \c w bits.
+		//! \warning Other bits except \c w bits are zero.
+		//!		Though no inplace swapping!
+		UInt _bit_reversal(
+			UInt x,
+			UInt w);
+
+
+
+		UInt _calcOverlapSaveSize(
+			UInt inputSampleCount,
+			UInt lb2FftSampleCount,
+			UInt kernelSampleCount);
 
 	
-	
-#	define _fff_UI_ZERO			((UInt)0)
-#	define _fff_UI_ONE			((UInt)1)
-#	define _fff_SMP_ZERO			((Sample)0)
-#	define _fff_SMP_ONE			((Sample)1)
-#	define _fff_M_PI				((Sample)3.14159265358979323846)
-#	define _fff_NULL				0
+		UInt _next_bin_step(
+			UInt n);
 
-/****************************************************************************************/
-#	define _fff_NTH_BIT(N)														\
-		(_fff_UI_ONE << (N))
-
-
-
-	/* integer division: divide X by N with respect to the remainder */
-#	define _fff_CEILDIV(X, N)													\
-		(( (X) + (N)-_fff_UI_ONE ) / (N))
-
-#	define _fff_BITMASK(M)														\
-		(_fff_NTH_BIT(M))
-
-#	define _fff_BITSWAPONLY(X,B,N)												\
-		(	(((X)&_fff_BITMASK(B))						<<						\
-				((N)-((B)<<_fff_UI_ONE)-_fff_UI_ONE)) |							\
-			(((X)&_fff_BITMASK((N)-(B)-_fff_UI_ONE))		>>						\
-				((N)-((B)<<_fff_UI_ONE)-_fff_UI_ONE)) )
-
-	/* swap all bits according to the length */
-	UInt _fff_bit_reversal(
-		const UInt bits, 
-		const UInt width);
-
-
-
-	UInt _fff_calcOverlapSaveSize(
-		UInt input_size,
-		UInt lb2_fft_size,
-		UInt kernel_size);
-
-	
-	UInt _fff_next_bin_step(
-		UInt n);
-
-	UInt _fff_next_lb2_step(
-		UInt n);
+		UInt _next_lb2_step(
+			UInt n);
 
 
 	/*
@@ -118,7 +114,7 @@
 		and the other kernel item refer to the "kernel_size-1" past
 		samples.
 
-		(Also see the test)
+		(Also see the tests)
 
 		Difference to the overlap-add method is, that this method
 		is using enough samples not to get aliasing artifacts with
@@ -127,39 +123,30 @@
 		Since OpenCL is better to have parallel operations this
 		method is more fft-work but no linear adding after.
 	*/
-	void _fff_calcOverlapSaveOffset(
-		UInt  *from_index,		/* global from element index */
-		UInt  *to_index,			/* global to element index */
-		UInt fft_group,			/* group of the fft */
-		UInt item_index,		/* item index of the group */
-		UInt lb2_fftSize,		/* log_2(N), N=fff_FFT_SIZE */
-		UInt kernel_size,		/* size of the kernel */
-		UInt data_size
-		);
-
-	void _fff_fft_butterfly(
-		UInt *elem_first,			/* first element of the butterfly */
-		UInt *elem_second,			/* second element of th butterfly */
-		Sample *euler_piFactorExponent,	/* complex euler exponent of the
-												factory PI: e^^(pi*euler_piFactorExponent) */
-		UInt layer,					/* layer of fft iteration, starts at 0 */
-		UInt butterfly				/* number of the butterfly */
+	void _calcOverlapSaveOffset(
+		UInt *fromIndex,
+		UInt *toIndex,
+		UInt fftGroup,
+		UInt itemIndex,
+		UInt lb2FftSize,
+		UInt kernelSize,
+		UInt dataSize
 		);
 
 
-	UInt _fff_factorial(
+	void _fft_butterfly(
+		UInt *firstIndex,
+		UInt *secondIndex,
+		Sample *twiddleExpPiFactor,	
+		UInt layerNum,					
+		UInt butterflyNum			
+		);
+
+
+	UInt _factorial(
 		UInt n
 		);
 
-
-	/*
-	
-	*/
-	
-	
-	
-
-	/* host and opencl code */
 
 #	define fff_KERNEL_TFUNC		fff_tfunc
 #	define fff_KERNEL_FCONV		fff_fconv

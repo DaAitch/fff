@@ -20,20 +20,14 @@
  *    If not, see <http://www.gnu.org/licenses/>.
  *--------------------------------------------------------*/
 
-#ifndef ____fffdevelhost_h__included__
-#	define ____fffdevelhost_h__included__
+#include "../include/fff.h"
 
-#	define _fff_DEVELHOST_CRASH() \
-		*((int *)NULL)=0
+_fff_BEGIN_NAMESPACE
 
-#	define _fff_DEVELHOST_IMPL_CRASH_COPYCTOR(CLASS)	\
-		CLASS(const CLASS&) { \
-			_fff_DEVELHOST_CRASH(); }
-#	define _fff_DEVELHOST_IMPL_CRASH_ASSIGNOP(CLASS) \
-		CLASS&operator=(const CLASS&) { \
-			_fff_DEVELHOST_CRASH(); return *this; }
+const char *gLicenseInformation =
+	"Fast Filtering Framework  Copyright (C) 2012  Philipp Renoth\n"
+    "This program comes with ABSOLUTELY NO WARRANTY.\n"
+    "This is free software, and you are welcome to redistribute it\n"
+    "under certain conditions.";
 
-#	define _fff_DEVELHOST_IMPL_DEFAULT_COPYCTOR()
-#	define _fff_DEVELHOST_IMPL_DEFAULT_ASSIGNOP()
-
-#endif
+_fff_END_NAMESPACE

@@ -160,10 +160,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\fcoclFilterDesigner.h" />
-    <ClInclude Include="include\fcoclFixMonoKernelFilter.h" />
-    <ClInclude Include="include\fcoclScenary.h" />
-    <ClInclude Include="include\fcoclTFuncComputer.h" />
     <ClInclude Include="include\fff.h" />
     <ClInclude Include="include\fffClEnv.h" />
     <ClInclude Include="include\fffCompiler.h" />
@@ -195,6 +191,7 @@
     <ClInclude Include="include\__fffTypes.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\fff.cpp" />
     <ClCompile Include="src\fffClEnv.cpp" />
     <ClCompile Include="src\fffCompiler.cpp" />
     <ClCompile Include="src\fffDevProps.cpp" />

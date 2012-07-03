@@ -1,3 +1,24 @@
+/*----------------------------------------------------------
+ *    The Fast Filtering Framework implements an LTI filter
+ *    with Khronos Group's OpenCL.
+ *    Copyright (C) 2012  Philipp Renoth
+ *----------------------------------------------------------
+ *    This program is free software: you can redistribute
+ *    it and/or modify it under the terms of the
+ *    GNU General Public License as published by the
+ *    Free Software Foundation, either version 3 of the
+ *    License, or (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will
+ *    be useful, but WITHOUT ANY WARRANTY; without even the
+ *    implied warranty of MERCHANTABILITY or
+ *    FITNESS FOR A PARTICULAR PURPOSE.
+ *    See the GNU General Public License for more details.
+ *
+ *    You should have received a copy of the
+ *    GNU General Public License along with this program.
+ *    If not, see <http://www.gnu.org/licenses/>.
+ *--------------------------------------------------------*/
 
 #include "../include/fffTesting.h"
 
@@ -11,43 +32,43 @@ void _fff_NAMESPACE_PREFIX fff_test()
 		higher than the size (in bits) will be
 		truncated left of the "size"-bits.
 	*/
-	assert(_fff_bit_reversal(4, 0) == 0);
-	assert(_fff_bit_reversal(1, 0) == 0);
+	assert(_bit_reversal(4, 0) == 0);
+	assert(_bit_reversal(1, 0) == 0);
 
-	assert(_fff_bit_reversal(6, 1)  == 0);
-	assert(_fff_bit_reversal(99, 1) == 1);
+	assert(_bit_reversal(6, 1)  == 0);
+	assert(_bit_reversal(99, 1) == 1);
 
-	assert(_fff_bit_reversal(0, 2) == 0);
-	assert(_fff_bit_reversal(1, 2) == 2);
-	assert(_fff_bit_reversal(2, 2) == 1);
-	assert(_fff_bit_reversal(3, 2) == 3);
-	assert(_fff_bit_reversal(6, 2) == 1);
-	assert(_fff_bit_reversal(7, 2) == 3);
+	assert(_bit_reversal(0, 2) == 0);
+	assert(_bit_reversal(1, 2) == 2);
+	assert(_bit_reversal(2, 2) == 1);
+	assert(_bit_reversal(3, 2) == 3);
+	assert(_bit_reversal(6, 2) == 1);
+	assert(_bit_reversal(7, 2) == 3);
 
-	assert(_fff_bit_reversal(0, 3) == 0);
-	assert(_fff_bit_reversal(1, 3) == 4);
-	assert(_fff_bit_reversal(2, 3) == 2);
-	assert(_fff_bit_reversal(3, 3) == 6);
-	assert(_fff_bit_reversal(4, 3) == 1);
-	assert(_fff_bit_reversal(5, 3) == 5);
-	assert(_fff_bit_reversal(6, 3) == 3);
-	assert(_fff_bit_reversal(7, 3) == 7);
+	assert(_bit_reversal(0, 3) == 0);
+	assert(_bit_reversal(1, 3) == 4);
+	assert(_bit_reversal(2, 3) == 2);
+	assert(_bit_reversal(3, 3) == 6);
+	assert(_bit_reversal(4, 3) == 1);
+	assert(_bit_reversal(5, 3) == 5);
+	assert(_bit_reversal(6, 3) == 3);
+	assert(_bit_reversal(7, 3) == 7);
 
-	assert(_fff_bit_reversal(1, 5) == 16);
+	assert(_bit_reversal(1, 5) == 16);
 
-	assert(_fff_bit_reversal(99,9) == 396);
+	assert(_bit_reversal(99,9) == 396);
 
-	assert(_fff_bit_reversal(99,9) == 396);
+	assert(_bit_reversal(99,9) == 396);
 
-	assert(_fff_bit_reversal(_fff_bit_reversal(99,13),13) == 99);
-	assert(_fff_bit_reversal(_fff_bit_reversal(9999,13),13) == 1807);
-	assert(_fff_bit_reversal(_fff_bit_reversal(999999,13),13) == 575);
-	assert(_fff_bit_reversal(_fff_bit_reversal(99999999,13),13) == 255);
+	assert(_bit_reversal(_bit_reversal(99,13),13) == 99);
+	assert(_bit_reversal(_bit_reversal(9999,13),13) == 1807);
+	assert(_bit_reversal(_bit_reversal(999999,13),13) == 575);
+	assert(_bit_reversal(_bit_reversal(99999999,13),13) == 255);
 
-	assert(_fff_bit_reversal(_fff_bit_reversal(99,32),32) == 99);
-	assert(_fff_bit_reversal(_fff_bit_reversal(9999,32),32) == 9999);
-	assert(_fff_bit_reversal(_fff_bit_reversal(999999,32),32) == 999999);
-	assert(_fff_bit_reversal(_fff_bit_reversal(99999999,32),32) == 99999999);
+	assert(_bit_reversal(_bit_reversal(99,32),32) == 99);
+	assert(_bit_reversal(_bit_reversal(9999,32),32) == 9999);
+	assert(_bit_reversal(_bit_reversal(999999,32),32) == 999999);
+	assert(_bit_reversal(_bit_reversal(99999999,32),32) == 99999999);
 
 	
 	
@@ -89,48 +110,48 @@ void _fff_NAMESPACE_PREFIX fff_test()
 	UInt from, to;
 
 	//								            group id | local id | lb2 fftsize | kernel size | data size	 | ASSERTION
-	_fff_calcOverlapSaveOffset(&from, &to,         0,         0,            3,            5,		100		); assert(from==0 && to== 0);
-	_fff_calcOverlapSaveOffset(&from, &to,         0,         3,            3,            5,		100		); assert(from== 6 && to== 3);
-	_fff_calcOverlapSaveOffset(&from, &to,         0,         6,            3,            5,		100		); assert(from==3 && to== 6);
-	_fff_calcOverlapSaveOffset(&from, &to,         0,         7,            3,            5,		100		); assert(from== 7 && to== 7);
-	_fff_calcOverlapSaveOffset(&from, &to,         1,         0,            3,            5,		100		); assert(from== 4 && to== 8);
-	_fff_calcOverlapSaveOffset(&from, &to,         1,         5,            3,            5,		100		); assert(from== 9 && to==13);
+	_calcOverlapSaveOffset(&from, &to,         0,         0,            3,            5,		100		); assert(from==0 && to== 0);
+	_calcOverlapSaveOffset(&from, &to,         0,         3,            3,            5,		100		); assert(from== 6 && to== 3);
+	_calcOverlapSaveOffset(&from, &to,         0,         6,            3,            5,		100		); assert(from==3 && to== 6);
+	_calcOverlapSaveOffset(&from, &to,         0,         7,            3,            5,		100		); assert(from== 7 && to== 7);
+	_calcOverlapSaveOffset(&from, &to,         1,         0,            3,            5,		100		); assert(from== 4 && to== 8);
+	_calcOverlapSaveOffset(&from, &to,         1,         5,            3,            5,		100		); assert(from== 9 && to==13);
 
-	_fff_calcOverlapSaveOffset(&from, &to,         2,         0,            3,            5,		100		); assert(from== 8 && to==16);
-	_fff_calcOverlapSaveOffset(&from, &to,         2,         2,            3,            5,		100		); assert(from== 10 && to==18);
+	_calcOverlapSaveOffset(&from, &to,         2,         0,            3,            5,		100		); assert(from== 8 && to==16);
+	_calcOverlapSaveOffset(&from, &to,         2,         2,            3,            5,		100		); assert(from== 10 && to==18);
 
-	_fff_calcOverlapSaveOffset(&from, &to,         3,         3,            3,            5,		100		); assert(from==18 && to==27);
-	_fff_calcOverlapSaveOffset(&from, &to,         3,         7,            3,            5,		100		); assert(from==19 && to==31);
+	_calcOverlapSaveOffset(&from, &to,         3,         3,            3,            5,		100		); assert(from==18 && to==27);
+	_calcOverlapSaveOffset(&from, &to,         3,         7,            3,            5,		100		); assert(from==19 && to==31);
 	
 
 
 
-	_fff_calcOverlapSaveOffset(&from, &to,		 1,			12,			5,				8,		100		); assert(from==31 && to==44);
-	_fff_calcOverlapSaveOffset(&from, &to,		 0,			1,			5,				8,		100		); assert(from==16 && to==1);
+	_calcOverlapSaveOffset(&from, &to,		 1,			12,			5,				8,		100		); assert(from==31 && to==44);
+	_calcOverlapSaveOffset(&from, &to,		 0,			1,			5,				8,		100		); assert(from==16 && to==1);
 
 
 	// scenary 2 ( x[14] ** h[2], FFT=4 )
-	assert(_fff_calcOverlapSaveSize(14, 2, 2) == 20);
-	_fff_calcOverlapSaveOffset(&from, &to,		 0,			0,			2,				2,		14		); assert(from==0 && to==0);
-	_fff_calcOverlapSaveOffset(&from, &to,		 0,			1,			2,				2,		14		); assert(from==2 && to==1);
-	_fff_calcOverlapSaveOffset(&from, &to,		 0,			2,			2,				2,		14		); assert(from==1 && to==2);
-	_fff_calcOverlapSaveOffset(&from, &to,		 0,			3,			2,				2,		14		); assert(from==3 && to==3);
-	_fff_calcOverlapSaveOffset(&from, &to,		 1,			0,			2,				2,		14		); assert(from==3 && to==4);
-	_fff_calcOverlapSaveOffset(&from, &to,		 1,			1,			2,				2,		14		); assert(from==5 && to==5);
-	_fff_calcOverlapSaveOffset(&from, &to,		 1,			2,			2,				2,		14		); assert(from==4 && to==6);
-	_fff_calcOverlapSaveOffset(&from, &to,		 1,			3,			2,				2,		14		); assert(from==6 && to==7);
-	_fff_calcOverlapSaveOffset(&from, &to,		 2,			0,			2,				2,		14		); assert(from==6 && to==8);
-	_fff_calcOverlapSaveOffset(&from, &to,		 2,			1,			2,				2,		14		); assert(from==8 && to==9);
-	_fff_calcOverlapSaveOffset(&from, &to,		 2,			2,			2,				2,		14		); assert(from==7 && to==10);
-	_fff_calcOverlapSaveOffset(&from, &to,		 2,			3,			2,				2,		14		); assert(from==9 && to==11);
-	_fff_calcOverlapSaveOffset(&from, &to,		 3,			0,			2,				2,		14		); assert(from==9 && to==12);
-	_fff_calcOverlapSaveOffset(&from, &to,		 3,			1,			2,				2,		14		); assert(from==11 && to==13);
-	_fff_calcOverlapSaveOffset(&from, &to,		 3,			2,			2,				2,		14		); assert(from==10 && to==14);
-	_fff_calcOverlapSaveOffset(&from, &to,		 3,			3,			2,				2,		14		); assert(from==12 && to==15);
-	_fff_calcOverlapSaveOffset(&from, &to,		 4,			0,			2,				2,		14		); assert(from==12 && to==16);
-	_fff_calcOverlapSaveOffset(&from, &to,		 4,			1,			2,				2,		14		); assert(from==14 && to==17);
-	_fff_calcOverlapSaveOffset(&from, &to,		 4,			2,			2,				2,		14		); assert(from==13 && to==18);
-	_fff_calcOverlapSaveOffset(&from, &to,		 4,			3,			2,				2,		14		); assert(from==15 && to==19);
+	assert(_calcOverlapSaveSize(14, 2, 2) == 20);
+	_calcOverlapSaveOffset(&from, &to,		 0,			0,			2,				2,		14		); assert(from==0 && to==0);
+	_calcOverlapSaveOffset(&from, &to,		 0,			1,			2,				2,		14		); assert(from==2 && to==1);
+	_calcOverlapSaveOffset(&from, &to,		 0,			2,			2,				2,		14		); assert(from==1 && to==2);
+	_calcOverlapSaveOffset(&from, &to,		 0,			3,			2,				2,		14		); assert(from==3 && to==3);
+	_calcOverlapSaveOffset(&from, &to,		 1,			0,			2,				2,		14		); assert(from==3 && to==4);
+	_calcOverlapSaveOffset(&from, &to,		 1,			1,			2,				2,		14		); assert(from==5 && to==5);
+	_calcOverlapSaveOffset(&from, &to,		 1,			2,			2,				2,		14		); assert(from==4 && to==6);
+	_calcOverlapSaveOffset(&from, &to,		 1,			3,			2,				2,		14		); assert(from==6 && to==7);
+	_calcOverlapSaveOffset(&from, &to,		 2,			0,			2,				2,		14		); assert(from==6 && to==8);
+	_calcOverlapSaveOffset(&from, &to,		 2,			1,			2,				2,		14		); assert(from==8 && to==9);
+	_calcOverlapSaveOffset(&from, &to,		 2,			2,			2,				2,		14		); assert(from==7 && to==10);
+	_calcOverlapSaveOffset(&from, &to,		 2,			3,			2,				2,		14		); assert(from==9 && to==11);
+	_calcOverlapSaveOffset(&from, &to,		 3,			0,			2,				2,		14		); assert(from==9 && to==12);
+	_calcOverlapSaveOffset(&from, &to,		 3,			1,			2,				2,		14		); assert(from==11 && to==13);
+	_calcOverlapSaveOffset(&from, &to,		 3,			2,			2,				2,		14		); assert(from==10 && to==14);
+	_calcOverlapSaveOffset(&from, &to,		 3,			3,			2,				2,		14		); assert(from==12 && to==15);
+	_calcOverlapSaveOffset(&from, &to,		 4,			0,			2,				2,		14		); assert(from==12 && to==16);
+	_calcOverlapSaveOffset(&from, &to,		 4,			1,			2,				2,		14		); assert(from==14 && to==17);
+	_calcOverlapSaveOffset(&from, &to,		 4,			2,			2,				2,		14		); assert(from==13 && to==18);
+	_calcOverlapSaveOffset(&from, &to,		 4,			3,			2,				2,		14		); assert(from==15 && to==19);
 
 	// std::cout << "FROM: " << from << ", TO: " << to << std::endl; std::cin.get();
 	//assert(from==16 && to==1);
@@ -141,14 +162,14 @@ void _fff_NAMESPACE_PREFIX fff_test()
 	*/
 
 	//std::cout << fff_calcOverlapSaveSize(10, 2, 3) << std::endl << std::endl; std::cin.get();
-	assert(_fff_calcOverlapSaveSize(100, 5, 10)==160);
-	assert(_fff_calcOverlapSaveSize(1023, 7, 7)==1152);
-	assert(_fff_calcOverlapSaveSize(17367, 8, 0)==17408);
-	assert(_fff_calcOverlapSaveSize(1025, 10, 1)==2048);
-	assert(_fff_calcOverlapSaveSize(44100, 12, 100)==49152);
+	assert(_calcOverlapSaveSize(100, 5, 10)==160);
+	assert(_calcOverlapSaveSize(1023, 7, 7)==1152);
+	assert(_calcOverlapSaveSize(17367, 8, 0)==17408);
+	assert(_calcOverlapSaveSize(1025, 10, 1)==2048);
+	assert(_calcOverlapSaveSize(44100, 12, 100)==49152);
 
 	// extreme: ~5 secs FIR (44100 samples per minute)
-	assert(_fff_calcOverlapSaveSize(1000000, 20, 220500)==2097152);
+	assert(_calcOverlapSaveSize(1000000, 20, 220500)==2097152);
 
 
 
@@ -163,55 +184,55 @@ void _fff_NAMESPACE_PREFIX fff_test()
 	Sample piE;
 
 	// N=8
-	_fff_fft_butterfly(&first, &second, &piE, 0, 0); assert(first==0 && second==1 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 1); assert(first==2 && second==3 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 2); assert(first==4 && second==5 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 3); assert(first==6 && second==7 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 0); assert(first==0 && second==2 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 1); assert(first==1 && second==3 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 2); assert(first==4 && second==6 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 3); assert(first==5 && second==7 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 0); assert(first==0 && second==4 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 1); assert(first==1 && second==5 && piE == (Sample)0.25);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 2); assert(first==2 && second==6 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 3); assert(first==3 && second==7 && piE == (Sample)0.75);
+	_fft_butterfly(&first, &second, &piE, 0, 0); assert(first==0 && second==1 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 1); assert(first==2 && second==3 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 2); assert(first==4 && second==5 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 3); assert(first==6 && second==7 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 0); assert(first==0 && second==2 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 1); assert(first==1 && second==3 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 1, 2); assert(first==4 && second==6 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 3); assert(first==5 && second==7 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 2, 0); assert(first==0 && second==4 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 2, 1); assert(first==1 && second==5 && piE == (Sample)0.25);
+	_fft_butterfly(&first, &second, &piE, 2, 2); assert(first==2 && second==6 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 2, 3); assert(first==3 && second==7 && piE == (Sample)0.75);
 
 	// N=16
-	_fff_fft_butterfly(&first, &second, &piE, 0, 0); assert(first==0 && second==1 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 1); assert(first==2 && second==3 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 2); assert(first==4 && second==5 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 3); assert(first==6 && second==7 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 4); assert(first==8 && second==9 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 5); assert(first==10 && second==11 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 6); assert(first==12 && second==13 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 0, 7); assert(first==14 && second==15 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 0); assert(first==0 && second==1 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 1); assert(first==2 && second==3 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 2); assert(first==4 && second==5 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 3); assert(first==6 && second==7 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 4); assert(first==8 && second==9 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 5); assert(first==10 && second==11 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 6); assert(first==12 && second==13 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 0, 7); assert(first==14 && second==15 && piE == (Sample)0);
 
-	_fff_fft_butterfly(&first, &second, &piE, 1, 0); assert(first==0 && second==2 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 1); assert(first==1 && second==3 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 2); assert(first==4 && second==6 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 3); assert(first==5 && second==7 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 4); assert(first==8 && second==10 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 5); assert(first==9 && second==11 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 6); assert(first==12 && second==14 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 1, 7); assert(first==13 && second==15 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 1, 0); assert(first==0 && second==2 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 1); assert(first==1 && second==3 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 1, 2); assert(first==4 && second==6 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 3); assert(first==5 && second==7 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 1, 4); assert(first==8 && second==10 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 5); assert(first==9 && second==11 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 1, 6); assert(first==12 && second==14 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 1, 7); assert(first==13 && second==15 && piE == (Sample)0.5);
 
-	_fff_fft_butterfly(&first, &second, &piE, 2, 0); assert(first==0 && second==4 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 1); assert(first==1 && second==5 && piE == (Sample)0.25);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 2); assert(first==2 && second==6 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 3); assert(first==3 && second==7 && piE == (Sample)0.75);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 4); assert(first==8 && second==12 && piE == (Sample)0);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 5); assert(first==9 && second==13 && piE == (Sample)0.25);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 6); assert(first==10 && second==14 && piE == (Sample)0.5);
-	_fff_fft_butterfly(&first, &second, &piE, 2, 7); assert(first==11 && second==15 && piE == (Sample)0.75);
+	_fft_butterfly(&first, &second, &piE, 2, 0); assert(first==0 && second==4 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 2, 1); assert(first==1 && second==5 && piE == (Sample)0.25);
+	_fft_butterfly(&first, &second, &piE, 2, 2); assert(first==2 && second==6 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 2, 3); assert(first==3 && second==7 && piE == (Sample)0.75);
+	_fft_butterfly(&first, &second, &piE, 2, 4); assert(first==8 && second==12 && piE == (Sample)0);
+	_fft_butterfly(&first, &second, &piE, 2, 5); assert(first==9 && second==13 && piE == (Sample)0.25);
+	_fft_butterfly(&first, &second, &piE, 2, 6); assert(first==10 && second==14 && piE == (Sample)0.5);
+	_fft_butterfly(&first, &second, &piE, 2, 7); assert(first==11 && second==15 && piE == (Sample)0.75);
 
-	_fff_fft_butterfly(&first, &second, &piE, 3, 0); assert(first==0 && second==8 && piE == (Sample)0.000);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 1); assert(first==1 && second==9 && piE == (Sample)0.125);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 2); assert(first==2 && second==10 && piE == (Sample)0.250);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 3); assert(first==3 && second==11 && piE == (Sample)0.375);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 4); assert(first==4 && second==12 && piE == (Sample)0.500);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 5); assert(first==5 && second==13 && piE == (Sample)0.625);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 6); assert(first==6 && second==14 && piE == (Sample)0.750);
-	_fff_fft_butterfly(&first, &second, &piE, 3, 7); assert(first==7 && second==15 && piE == (Sample)0.875);
+	_fft_butterfly(&first, &second, &piE, 3, 0); assert(first==0 && second==8 && piE == (Sample)0.000);
+	_fft_butterfly(&first, &second, &piE, 3, 1); assert(first==1 && second==9 && piE == (Sample)0.125);
+	_fft_butterfly(&first, &second, &piE, 3, 2); assert(first==2 && second==10 && piE == (Sample)0.250);
+	_fft_butterfly(&first, &second, &piE, 3, 3); assert(first==3 && second==11 && piE == (Sample)0.375);
+	_fft_butterfly(&first, &second, &piE, 3, 4); assert(first==4 && second==12 && piE == (Sample)0.500);
+	_fft_butterfly(&first, &second, &piE, 3, 5); assert(first==5 && second==13 && piE == (Sample)0.625);
+	_fft_butterfly(&first, &second, &piE, 3, 6); assert(first==6 && second==14 && piE == (Sample)0.750);
+	_fft_butterfly(&first, &second, &piE, 3, 7); assert(first==7 && second==15 && piE == (Sample)0.875);
 	
 
 	// test fffSamples
