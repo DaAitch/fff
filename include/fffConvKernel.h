@@ -1,24 +1,35 @@
-/*----------------------------------------------------------
- *    The Fast Filtering Framework implements an LTI filter
- *    with Khronos Group's OpenCL.
- *    Copyright (C) 2012  Philipp Renoth
- *----------------------------------------------------------
- *    This program is free software: you can redistribute
- *    it and/or modify it under the terms of the
- *    GNU General Public License as published by the
- *    Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will
- *    be useful, but WITHOUT ANY WARRANTY; without even the
- *    implied warranty of MERCHANTABILITY or
- *    FITNESS FOR A PARTICULAR PURPOSE.
- *    See the GNU General Public License for more details.
- *
- *    You should have received a copy of the
- *    GNU General Public License along with this program.
- *    If not, see <http://www.gnu.org/licenses/>.
- *--------------------------------------------------------*/
+//---------------------------------------------------------+
+// fff/include/fffConvKernel.h
+//---------------------------------------------------------+
+//  License:
+//    
+//    The Fast Filtering Framework implements an LTI filter
+//    with Khronos Group's OpenCL.
+//    Copyright (C) 2012  Philipp Renoth <fff@aitch.de>
+//
+//    This program is free software: you can redistribute
+//    it and/or modify it under the terms of the
+//    GNU General Public License as published by the
+//    Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will
+//    be useful, but WITHOUT ANY WARRANTY; without even the
+//    implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
+//
+//    You should have received a copy of the
+//    GNU General Public License along with this program.
+//    If not, see <http://www.gnu.org/licenses/>.
+//---------------------------------------------------------+
+//!
+//!	\file		fffConvKernel.h
+//!
+//!	\author		Philipp Renoth <fff@aitch.de>
+//!	\brief		Convolution kernel OpenCL interface.
+//!	\copyright	GNU General Public License v3 2012.
+//---------------------------------------------------------+
 
 #ifndef __fffconvkernel_h__included__
 #	define __fffconvkernel_h__included__
@@ -104,7 +115,7 @@
 				if(!m_kernel())
 					fff_THROW("invalid kernel");
 
-				UInt extensionElementsCount = _fff_calcOverlapSaveSize(
+				UInt extensionElementsCount = _fff_calcOverlapSaveSampleCount(
 					physicalNewInBuf.getMultiChannel().getSampleCount() +
 					physicalStateBuf.getMultiChannel().getSampleCount(),
 					computingMap.getLb2FftElementCount(),

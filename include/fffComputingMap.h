@@ -1,24 +1,37 @@
-/*----------------------------------------------------------
- *    The Fast Filtering Framework implements an LTI filter
- *    with Khronos Group's OpenCL.
- *    Copyright (C) 2012  Philipp Renoth
- *----------------------------------------------------------
- *    This program is free software: you can redistribute
- *    it and/or modify it under the terms of the
- *    GNU General Public License as published by the
- *    Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will
- *    be useful, but WITHOUT ANY WARRANTY; without even the
- *    implied warranty of MERCHANTABILITY or
- *    FITNESS FOR A PARTICULAR PURPOSE.
- *    See the GNU General Public License for more details.
- *
- *    You should have received a copy of the
- *    GNU General Public License along with this program.
- *    If not, see <http://www.gnu.org/licenses/>.
- *--------------------------------------------------------*/
+//---------------------------------------------------------+
+// fff/include/fffComputingMap.h
+//---------------------------------------------------------+
+//  License:
+//    
+//    The Fast Filtering Framework implements an LTI filter
+//    with Khronos Group's OpenCL.
+//    Copyright (C) 2012  Philipp Renoth <fff@aitch.de>
+//
+//    This program is free software: you can redistribute
+//    it and/or modify it under the terms of the
+//    GNU General Public License as published by the
+//    Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will
+//    be useful, but WITHOUT ANY WARRANTY; without even the
+//    implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
+//
+//    You should have received a copy of the
+//    GNU General Public License along with this program.
+//    If not, see <http://www.gnu.org/licenses/>.
+//---------------------------------------------------------+
+//!
+//!	\file		fffComputingMap.h
+//!
+//!	\author		Philipp Renoth <fff@aitch.de>
+//!	\brief		Runtime problem-solution mapping of given
+//!				information to allow computation without
+//!				overflows, but best usage of resources.
+//!	\copyright	GNU General Public License v3 2012.
+//---------------------------------------------------------+
 #ifndef __fffcomputingmap_h__included__
 #	define __fffcomputingmap_h__included__
 
@@ -51,7 +64,7 @@
 				// L = T*M - 2M-2
 				// L = M(T-2) - 2
 
-				m_lb2FftElementCount = _fff_next_lb2_step(computingData.getKernelElementsCount()) + throughputFactor;
+				m_lb2FftElementCount = _fff_nextLb2Step(computingData.getKernelElementsCount()) + throughputFactor;
 				m_localWorkerCount = _fff_NTH_BIT((ULong)getLb2FftElementCount()-1); // N/2 worker <-> each butterfly, one worker
 
 				if(m_localWorkerCount > deviceProperties.getMaxWorkerGroupCount())

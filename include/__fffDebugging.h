@@ -1,33 +1,35 @@
-/*----------------------------------------------------------
- *    The Fast Filtering Framework implements an LTI filter
- *    with Khronos Group's OpenCL.
- *    Copyright (C) 2012  Philipp Renoth
- *----------------------------------------------------------
- *    This program is free software: you can redistribute
- *    it and/or modify it under the terms of the
- *    GNU General Public License as published by the
- *    Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will
- *    be useful, but WITHOUT ANY WARRANTY; without even the
- *    implied warranty of MERCHANTABILITY or
- *    FITNESS FOR A PARTICULAR PURPOSE.
- *    See the GNU General Public License for more details.
- *
- *    You should have received a copy of the
- *    GNU General Public License along with this program.
- *    If not, see <http://www.gnu.org/licenses/>.
- *--------------------------------------------------------*/
-
-/*!
-	\file		__fffDebugging.h
-
-	\author		Philipp Renoth
-	\brief		Macros and helper functions to check OpenCL runtime behaviour,
-				e.g observe error codes at runtime.
-	\copyright	GNU General Public License v3 2012.
-*/
+//---------------------------------------------------------+
+// fff/include/__fffDebugging.h
+//---------------------------------------------------------+
+//  License:
+//    
+//    The Fast Filtering Framework implements an LTI filter
+//    with Khronos Group's OpenCL.
+//    Copyright (C) 2012  Philipp Renoth <fff@aitch.de>
+//
+//    This program is free software: you can redistribute
+//    it and/or modify it under the terms of the
+//    GNU General Public License as published by the
+//    Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will
+//    be useful, but WITHOUT ANY WARRANTY; without even the
+//    implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
+//
+//    You should have received a copy of the
+//    GNU General Public License along with this program.
+//    If not, see <http://www.gnu.org/licenses/>.
+//---------------------------------------------------------+
+//!
+//!	\file		__fffDebugging.h
+//!
+//!	\author		Philipp Renoth <fff@aitch.de>
+//!	\brief		Runtime OpenCL Check functions.
+//!	\copyright	GNU General Public License v3 2012.
+//---------------------------------------------------------+
 #ifndef ____fffdebugging_h__included__
 #	define ____fffdebugging_h__included__
 
@@ -44,7 +46,7 @@
 
 		//! \internal Calls external check function with given message.
 #		define _fff_RTCLC_ERRCHECK(FAILMSG)							\
-			extRtCLCHandler(fff_RTCLC_ERR, (const Char *)(FAILMSG))
+			__rtclcCheckErr(fff_RTCLC_ERR, (const char *)(FAILMSG))
 
 		/*! Uses and checks return value of \em EXPR as error value
 			\code{.cpp}
@@ -68,8 +70,8 @@
 
 
 		void __rtclcCheckErr(
-			Int err,
-			const Char *subject);
+			int err,
+			const char *msg);
 		
 
 
@@ -79,19 +81,12 @@
 		String rtclcDebugErrorByName(
 			Int errorNum);
 
-		enum rtclcResult
-		{
-			rSolved = 0,
-			rOk = 0,
-			rQueryAlternative = 1,
-			rAbort = 2,
-			rForceAbort = 3
-		};
-
-		extern rtclcResult extRtCLCHandler(
-			Int err,
-			const Char *);
+		
 
 	_fff_END_NAMESPACE
+
+	extern void extRtCLCHandler(
+		int err,
+		const char *msg);
 
 #endif

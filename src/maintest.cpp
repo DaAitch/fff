@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/_fffIPrintable.h
+// fff/src/maintest.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,27 +24,61 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		_fffIPrintable.h
+//!	\file		maintest.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Interface to let objects be printable.
+//!	\brief		Entry point in test mode to invoke tests.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef ___fffiprintable_h__included__
-#	define ___fffiprintable_h__included__
+#include "../include/fff.h"
 
-#	include "_fffBase.h"
-#	include "_fffLogStream.h"
+using namespace fff;
+using namespace std;
 
-	_fff_BEGIN_NAMESPACE
-
-		class IPrintable
+#ifdef _TEST
+	void extRtCLCHandler(
+		int err,
+		const char *msg)
+	{
+		if(err)
 		{
-			virtual void print(
-				LogStream &stream) const = 0;
-		};
+			StringStream strstr;
+			strstr << "Error " << err << "[";
+			strstr << rtclcDebugErrorByName(err);
+			strstr << "]: " << msg;
 
-	_fff_END_NAMESPACE
+			cerr << strstr.str() << endl << endl;
+
+			throw exception(strstr.str().c_str());
+		}
+	}
+
+	int main()
+	{
+		try
+		{
+			test_nextBinStep();
+			test_bitReversal();
+			test_fftButterfly();
+			test_classV();
+			test_classCv();
+			test_calcOverlapSaveSampleCount();
+			test_calcOverlapSaveSampleOffset();
+
+			cout << "All tests passed!" << std::endl;
+			cout << "Please press [ Enter ] to quit the test.   . . ." << std::endl;
+			cin.get();
+			return EXIT_SUCCESS;
+		}
+		catch(exception &e)
+		{
+			cout << e.what();
+
+			cin.get();
+			return
+				EXIT_FAILURE;
+		}
+	}
 
 #endif

@@ -1,37 +1,52 @@
-/*----------------------------------------------------------
- *    The Fast Filtering Framework implements an LTI filter
- *    with Khronos Group's OpenCL.
- *    Copyright (C) 2012  Philipp Renoth
- *----------------------------------------------------------
- *    This program is free software: you can redistribute
- *    it and/or modify it under the terms of the
- *    GNU General Public License as published by the
- *    Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    This program is distributed in the hope that it will
- *    be useful, but WITHOUT ANY WARRANTY; without even the
- *    implied warranty of MERCHANTABILITY or
- *    FITNESS FOR A PARTICULAR PURPOSE.
- *    See the GNU General Public License for more details.
- *
- *    You should have received a copy of the
- *    GNU General Public License along with this program.
- *    If not, see <http://www.gnu.org/licenses/>.
- *--------------------------------------------------------*/
+//---------------------------------------------------------+
+// fff/cl/fffConvolution.cpp.cl
+//---------------------------------------------------------+
+//  License:
+//    
+//    The Fast Filtering Framework implements an LTI filter
+//    with Khronos Group's OpenCL.
+//    Copyright (C) 2012  Philipp Renoth <fff@aitch.de>
+//
+//    This program is free software: you can redistribute
+//    it and/or modify it under the terms of the
+//    GNU General Public License as published by the
+//    Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will
+//    be useful, but WITHOUT ANY WARRANTY; without even the
+//    implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
+//
+//    You should have received a copy of the
+//    GNU General Public License along with this program.
+//    If not, see <http://www.gnu.org/licenses/>.
+//---------------------------------------------------------+
+//!
+//!	\file		fffConvolution.cpp.cl
+//!
+//!	\author		Philipp Renoth <fff@aitch.de>
+//!	\brief		Convolution OpenCL kernel and
+//!				helper functions.
+//!	\copyright	GNU General Public License v3 2012.
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
+// Include header
+//---------------------------------------------------------+
 #include "../cl/fffConvolution.h.cl"
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
 
-
-//----------------------------------------------------------
+//---------------------------------------------------------+
+// Namespace
+//---------------------------------------------------------+
 _fff_BEGIN_NAMESPACE
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 	UInt _bit_reversal(
 		UInt x, 
 		UInt w)
@@ -47,35 +62,50 @@ _fff_BEGIN_NAMESPACE
 		return
 			out;
 	}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
-	UInt _next_bin_step(
+//---------------------------------------------------------+
+	UInt _nextBinStep(
 		UInt n)
 	{
 		return
-			1<<_next_lb2_step(n);
+			1<<_nextLb2Step(n);
 	}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
-	UInt _next_lb2_step(
+//---------------------------------------------------------+
+	UInt _nextLb2Step(
 		UInt n)
 	{
-		//! \bug for n=0
-		--n;
-		UInt b = 0;
-		while(n)
-		{
-			n >>= 1;
-			++b;
-		}
-		return b;
-	}
-//----------------------------------------------------------
+		// Optimization:
+		// UInt b = 0;
+		// while(n)
+		// {
+		// 	n >>= 1;
+		// 	++b;
+		// }
+		// return b;
 
-//----------------------------------------------------------
-	UInt _calcOverlapSaveSize(
+#		ifdef _fff_IS_DEV
+#			pragma unroll
+#		endif
+		for(
+			UInt b = 0;
+			b < 32;
+			++b)
+		{
+			if(n < ((UInt)1<<b))
+				return b;
+		}
+
+		// unreachable
+		return (UInt)-1;
+		
+	}
+//---------------------------------------------------------+
+
+//---------------------------------------------------------+
+	UInt _calcOverlapSaveSampleCount(
 		UInt inputSampleCount,
 		UInt lb2FftSampleCount,
 		UInt kernelSampleCount)
@@ -102,14 +132,14 @@ _fff_BEGIN_NAMESPACE
 				throughputSampleCount);
 
 		// since only full ffts can be calculated
-		// this is additionally overhead
+		// there is additionally overhead
 		return
 			fftBlockCount * fftSampleCount;
 	}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
-	void _calcOverlapSaveOffset(
+//---------------------------------------------------------+
+	void _calcOverlapSaveSampleOffset(
 		UInt *fromIndex,
 		UInt *toIndex,
 		UInt fftGroupNum,
@@ -146,10 +176,10 @@ _fff_BEGIN_NAMESPACE
 			fftGroupNum * fftSampleCount;
 
 	}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
-	void _fft_butterfly(
+//---------------------------------------------------------+
+	void _fftButterfly(
 		UInt *firstIndex,
 		UInt *secondIndex,
 		Sample *twiddleExpPiFactor,
@@ -180,9 +210,9 @@ _fff_BEGIN_NAMESPACE
 			(groupNum
 			// each group its crossing butterflies with
 			// two items each butterfyl
-			//* (crossingButterfliesCount<<1)
-			// \b Optimization:
-			<< (layerNum<<1))
+			//* (crossingButterfliesCount<<1))
+			// Optimization:
+			<< (layerNum+1))
 			// plus the group intern offset
 			+ groupButterflyNum;
 
@@ -193,15 +223,15 @@ _fff_BEGIN_NAMESPACE
 		(*secondIndex) = tmpFirstIndex +
 			crossingButterfliesCount;
 
-		// twiddle \c w factor of the complex
-		// euler function. \f$ e^{w \cdot \pi}
+		// twiddle factor exponent w of the complex
+		// euler function.
 		(*twiddleExpPiFactor) =
 			(Sample)groupButterflyNum /
 			(Sample)crossingButterfliesCount;
 	}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 	UInt _factorial(
 			UInt n
 			)
@@ -211,7 +241,7 @@ _fff_BEGIN_NAMESPACE
 			res*=n;
 		return res;
 	}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
 
 
@@ -306,60 +336,76 @@ _fff_BEGIN_NAMESPACE
 
 
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 		void _cmul(
-			Sample *real,
-			Sample *imag,
-			Sample complex_exponent,
-			Sample factor_real,
-			Sample factor_imag
+			Sample *yRe,
+			Sample *yIm,
+			Sample cExp,
+			Sample xRe,
+			Sample xIm
 			)
 		{
-			Sample mul_imag, mul_real;
-			mul_imag = sincos(complex_exponent, &mul_real);
+			// euler's identity formula
+			Sample mulIm, mulRe;
+			mulImag = sincos(
+				xExp, &mulRe);
 
-			(*real) = factor_real*mul_real - factor_imag*mul_imag;
-			(*imag) = factor_real*mul_imag + factor_imag*mul_real;
+			// complex multiplication
+			(*y_re) =
+				  (xRe * mulRe)
+				- (xIm * mulIm);
+			(*y_im) =
+				  (xRe * mulIm)
+				+ (xIm * mulRe);
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 		
-//----------------------------------------------------------
-		Sample _kaiser_window(
-			UInt n,
-			UInt kernel_size,
+//---------------------------------------------------------+
+		Sample _kaiserWindow(
+			UInt sampleIndex,
+			UInt kernelSampleCount,
 			Sample alpha
 			)
 		{
-			Sample nom, nom_part, denom, alphaPi;
+			Sample alphaPi = alpha * _fff_M_PI;
 
-			alphaPi = alpha * _fff_M_PI;
-
-			nom_part = 
-				(Sample)(n<<1)/
-					(Sample)kernel_size -
+			// inner part of the nominator
+			Sample nomPart = 
+				(Sample)(sampleIndex<<1)/
+					(Sample)kernelSampleCount -
 				(Sample)1;
-			nom = alphaPi * sqrt(
+
+			// nominator
+			Sample nom = alphaPi * sqrt(
 				(Sample)1 - 
 					nom_part*nom_part);
 
-			denom = alphaPi;
+			// denominator
+			Sample denom = alphaPi;
 
+			// kaiser window is the relation
+			// between those modified bessel functions
 			return
-				_i0(nom) /
-				_i0(denom);
+				_I0(nom) /
+				_I0(denom);
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
-		Sample _fff_i0(
+//---------------------------------------------------------+
+		Sample _I0(
 				Sample x
 				)
 		{
+			// half x
 			Sample x2 =
 				x / (Sample)2;
 
+			// continuous gamma integral as
+			// discrete summation
 			Sample sum = 0;
 
+			// unroll finite summation
+			#pragma unroll
 			for(
 				UInt m = 0;
 				m < _fff_I0_M;
@@ -381,11 +427,11 @@ _fff_BEGIN_NAMESPACE
 			return sum;
 
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 	
 
-//----------------------------------------------------------
-		void __fft_perform(
+//---------------------------------------------------------+
+		void __fftPerform(
 			__global Sample *arranged_real,
 			__global Sample *arranged_imag,
 			Sample pi_direction,
@@ -394,6 +440,7 @@ _fff_BEGIN_NAMESPACE
 			UInt butterfly_jump
 			)
 		{
+			#pragma unroll
 			for(
 				UInt layer = 0;
 				layer < _fff_LB2_FFT_SIZE;
@@ -408,7 +455,7 @@ _fff_BEGIN_NAMESPACE
 				{
 					UInt first, second;
 					Sample exponent;
-					_fft_butterfly(
+					_fftButterfly(
 						&first,
 						&second,
 						&exponent,
@@ -450,9 +497,9 @@ _fff_BEGIN_NAMESPACE
 			
 			}
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 		void _fft(
 			__global Sample *arranged_real,
 			__global Sample *arranged_imag,
@@ -460,7 +507,7 @@ _fff_BEGIN_NAMESPACE
 					UInt butterfly_jump
 			)
 		{
-			__fft_perform(
+			__fftPerform(
 				arranged_real,
 				arranged_imag,
 				-_fff_M_PI,		// MINUS PI !!!
@@ -468,9 +515,9 @@ _fff_BEGIN_NAMESPACE
 				butterfly_jump
 				);
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 		void _ifft(
 			__global Sample *arranged_real,
 			__global Sample *arranged_imag,
@@ -478,7 +525,7 @@ _fff_BEGIN_NAMESPACE
 					UInt butterfly_jump
 			)
 		{
-			__fft_perform(
+			__fftPerform(
 				arranged_real,
 				arranged_imag,
 				_fff_M_PI,		// PLUS PI !!!
@@ -486,9 +533,9 @@ _fff_BEGIN_NAMESPACE
 				butterfly_jump
    			);
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 		/* calculating transfer function offline */
 		__kernel void fff_KERNEL_TFUNC(
 
@@ -575,9 +622,9 @@ _fff_BEGIN_NAMESPACE
 
 			}
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
-//----------------------------------------------------------
+//---------------------------------------------------------+
 		/* fast convolution kernel */
 		__kernel void fff_KERNEL_FCONV(
 
@@ -603,7 +650,7 @@ _fff_BEGIN_NAMESPACE
 
 			)
 		{
-			//UInt tmpSize = fff_calcOverlapSaveSize(data_size, fff_LB2_FFT_SIZE, kernel_size);
+			//UInt tmpSize = fff_calcOverlapSaveSampleCount(data_size, fff_LB2_FFT_SIZE, kernel_size);
 			//if(fff_GROUP_ID()>2)return;
 		
 		
@@ -627,7 +674,7 @@ _fff_BEGIN_NAMESPACE
 			
 				UInt fromIndex, toIndex;
 
-				_calcOverlapSaveOffset(
+				_calcOverlapSaveSampleOffset(
 					&fromIndex,
 					&toIndex,
 					fff_GROUP_ID(),
@@ -730,7 +777,7 @@ _fff_BEGIN_NAMESPACE
 				}
 			}
 		}
-//----------------------------------------------------------
+//---------------------------------------------------------+
 
 		
 	#endif /* ifdef _fff_OPENCLCODE */
