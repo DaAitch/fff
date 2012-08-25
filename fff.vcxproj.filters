@@ -1,134 +1,290 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Quelldateien">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Headerdateien">
+    <Filter Include="code">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Ressourcendateien">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="code\intern">
+      <UniqueIdentifier>{f17b5cc1-9b4b-4a5b-b5c9-05461ad4bd46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\cl">
+      <UniqueIdentifier>{357c2e3a-b2e4-4cb6-98ee-785ec809bbfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\environment">
+      <UniqueIdentifier>{496484f7-c3fa-4260-9b6d-0982f20961e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\compiler">
+      <UniqueIdentifier>{d0324b9f-fc8b-4bc1-ac1b-b9d793083798}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\buffer">
+      <UniqueIdentifier>{8f758e70-65d9-4898-85a1-ff3fd412fb51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\buffer\host">
+      <UniqueIdentifier>{4136d2d2-6f65-4409-84a2-e4e04259e62d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\buffer\device">
+      <UniqueIdentifier>{b6c0a5ea-86ba-4fb7-9efc-0374889d112a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\buffer\ubi">
+      <UniqueIdentifier>{7022d342-bdcd-4dff-a686-df2e4b832b27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\computing">
+      <UniqueIdentifier>{27babc54-5c9a-4068-bb70-3200d9efe2d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\kernel">
+      <UniqueIdentifier>{c9a2a498-326d-48f5-a8fa-f9034ab11041}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\filesystem">
+      <UniqueIdentifier>{4cdccc56-aa3a-4694-bd52-ada9eae9bd7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\testing">
+      <UniqueIdentifier>{fa73e732-2052-4e50-b6c3-4e1a109ebef8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\kernel\base">
+      <UniqueIdentifier>{6b0376ce-8f15-4b1c-bf77-f9f4ab7a928e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\compiler\optimization">
+      <UniqueIdentifier>{0bde4c94-ae95-4145-b882-afffd71923ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\intern\debugging">
+      <UniqueIdentifier>{774c8203-48cd-43be-bc02-d022222dc23e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\intern\development">
+      <UniqueIdentifier>{f55e98f2-993f-4443-a3c4-2c0701bcda2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\intern\misc">
+      <UniqueIdentifier>{4b8d8314-8ba4-404f-86fc-00e2d1bb8384}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\__fffDebugging.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\__fffDevelHost.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\__fffTools.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\__fffTypes.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\_fffBase.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\_fffException.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\_fffIPrintable.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\_fffLogStream.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="include\fff.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>code</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffClEnv.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\buffer\Vector.h">
+      <Filter>code\buffer</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCompiler.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\buffer\complex\ComplexVector.h">
+      <Filter>code\buffer</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffComputingData.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Compiler.h">
+      <Filter>code\compiler</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffComputingMap.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Optimization\Worker.h">
+      <Filter>code\compiler\optimization</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffConvKernel.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Optimization\Unroll.h">
+      <Filter>code</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCv.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Kernel\Convolution.h">
+      <Filter>code\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCvDevSChBuf.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Kernel\FastConvolution.h">
+      <Filter>code\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCvHstMChBuf.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Kernel\TransferFunction.h">
+      <Filter>code\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCvHstMChBufPreallocated.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\Kernel\Transformation.h">
+      <Filter>code\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCvHstSChBuf.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\RuntimeMapping\Mapper.h">
+      <Filter>code\computing</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffCvUbiMChBuf.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\RuntimeMapping\DeviceProperties.h">
+      <Filter>code\computing</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffDevProps.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\RuntimeMapping\ComputingData.h">
+      <Filter>code\computing</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffICvMChBuf.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Computing\OpenCLEnvironment.h">
+      <Filter>code\environment</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffTesting.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Filesystem\FileReader.h">
+      <Filter>code\filesystem</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffTFuncKernel.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Filesystem\WaveReader.h">
+      <Filter>code\filesystem</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffV.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\Filesystem\WaveWriter.h">
+      <Filter>code\filesystem</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffWave.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\buffer\complex\host\IHostMultiChannel.h">
+      <Filter>code\buffer</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffWavReader.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\buffer\complex\host\HostMultiChannel.h">
+      <Filter>code\buffer\host</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffWavWriter.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\buffer\complex\host\HostMultiChannelPreallocated.h">
+      <Filter>code\buffer\host</Filter>
     </ClInclude>
-    <ClInclude Include="include\fffFileReader.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="include\buffer\complex\host\HostSingleChannel.h">
+      <Filter>code\buffer\host</Filter>
     </ClInclude>
-    <ClInclude Include="cl\fffConvolution.h.cl" />
+    <ClInclude Include="include\buffer\complex\ubiquitous\UbiMultiChannel.h">
+      <Filter>code\buffer\ubi</Filter>
+    </ClInclude>
+    <ClInclude Include="include\buffer\complex\device\DevSingleChannel.h">
+      <Filter>code\buffer\device</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Testing\Base\_testingbase.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="cl\fff.h.cl">
+      <Filter>code\cl</Filter>
+    </ClInclude>
+    <ClInclude Include="cl\tf.h.cl" />
+    <ClInclude Include="cl\fft.h.cl" />
+    <ClInclude Include="cl\fconv.h.cl" />
+    <ClInclude Include="cl\dsp.h.cl" />
+    <ClInclude Include="cl\dft.h.cl" />
+    <ClInclude Include="cl\dconv.h.cl" />
+    <ClInclude Include="cl\math.h.cl" />
+    <ClInclude Include="include\Computing\Kernel\KernelBase.h">
+      <Filter>code\kernel\base</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelBase.h">
+      <Filter>code\buffer\ubi</Filter>
+    </ClInclude>
+    <ClInclude Include="cl\_.h.cl">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Filesystem\wave.h">
+      <Filter>code\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="include\buffer.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\computing.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\filesystem.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\complex.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\device.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\host.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\ubiquitous.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Computing\kernel.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Computing\optimization.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Computing\runtimemapping.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Testing\testclasses.h">
+      <Filter>code\testing</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Testing\testopenclc99.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Testing\testintern.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\rtclc.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\typecast.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\exceptionsruntime.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\exceptions.h">
+      <Filter>code\intern</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\exceptionsrtclc.h">
+      <Filter>code\intern\debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\exceptionsinternal.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\_base.h">
+      <Filter>code\intern</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\_ns.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\_tools.h">
+      <Filter>code\intern\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\_types.h">
+      <Filter>code\intern\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\path.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\iprintable.h">
+      <Filter>code\intern</Filter>
+    </ClInclude>
+    <ClInclude Include="include\_intern\logstream.h">
+      <Filter>code\intern</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\IUbiMultiChannel.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelPreallocated.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\Device\DevMultiChannel.h">
+      <Filter>code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\__fffDebugging.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_fffLogStream.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fffClEnv.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fffCompiler.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fffDevProps.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fffTesting.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="cl\fffConvolution.cpp.cl" />
     <ClCompile Include="src\fff.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>code</Filter>
     </ClCompile>
-    <ClCompile Include="src\maintest.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="src\Testing\Base\_testingbase.cpp" />
+    <ClCompile Include="cl\tf.cpp.cl" />
+    <ClCompile Include="cl\fft.cpp.cl" />
+    <ClCompile Include="cl\fconv.cpp.cl" />
+    <ClCompile Include="cl\dsp.cpp.cl" />
+    <ClCompile Include="cl\dft.cpp.cl" />
+    <ClCompile Include="cl\dconv.cpp.cl" />
+    <ClCompile Include="cl\math.cpp.cl" />
+    <ClCompile Include="src\Computing\OpenCLEnvironment.cpp">
+      <Filter>code\environment</Filter>
     </ClCompile>
+    <ClCompile Include="src\Computing\Compiler.cpp">
+      <Filter>code\compiler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Computing\RuntimeMapping\DeviceProperties.cpp">
+      <Filter>code\computing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Testing\testopenclc99.cpp" />
+    <ClCompile Include="cl\fff.cpp.cl" />
+    <ClCompile Include="cl\overlapsave.cpp.cl" />
+    <ClCompile Include="cl\bits.cpp.cl" />
+    <ClCompile Include="src\Testing\testintern.cpp" />
+    <ClCompile Include="src\_intern\exceptions.cpp" />
+    <ClCompile Include="src\_intern\logstream.cpp">
+      <Filter>code\intern</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_intern\path.cpp" />
+    <ClCompile Include="src\_intern\iprintable.cpp" />
+    <ClCompile Include="src\_intern\rtclc.cpp" />
+    <ClCompile Include="src\_intern\typecast.cpp" />
+    <ClCompile Include="src\Testing\testclasses.cpp" />
+    <ClCompile Include="src\Computing\Kernel\KernelBase.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="codetemplates\code.txt" />
+    <None Include="cl\bits.h.cl" />
+    <None Include="cl\consts.h.cl" />
+    <None Include="cl\overlapsave.h.cl" />
+    <None Include="cl\_.cl" />
   </ItemGroup>
 </Project>

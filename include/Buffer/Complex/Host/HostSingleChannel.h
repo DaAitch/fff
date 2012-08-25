@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/include/fffCvHstSChBuf.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,48 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		fffCvHstSChBuf.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		Single channel complex vector host buffer.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef __fffcvhstschbuf_h__included__
+#	define __fffcvhstschbuf_h__included__
 
-#include "_intern.h"
+#	include "../../../_intern/_base.h"
+#	include "IHostMultiChannel.h"
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+namespace fff {
+namespace Buffer {
+namespace Complex {
+namespace Host {
 
-
-
-namespace fff
+template<
+	class SampleType
+>
+class HostSingleChannel
+	: public ComplexVector<SampleType>
 {
-	extern const char *gLicenseInformation;
-}
-		
+public:
+	typedef
+		SampleType MySample;
+	typedef
+		HostSingleChannel<MySample> My;
 
-#endif /* ifndef __fff_h__included__ */
+	HostSingleChannel(
+		UInt sampleCount = 0)
+		: ComplexVector(sampleCount)
+	{
+	}
+
+	using ComplexVector<SampleType>::operator=;
+};
+
+} // namespace Host
+} // namespace Complex
+} // namespace Buffer
+} // namespace fff
+
+#endif

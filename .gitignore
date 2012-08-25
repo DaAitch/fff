@@ -1,4 +1,20 @@
 #################
+# Userdefined
+#################
+bin/
+build/
+Debug/
+doc/
+ipch/
+lib/
+ProfilerOutput
+Release/
+*.log
+*.opensdf
+*.sdf
+
+
+#################
 ## Eclipse
 #################
 

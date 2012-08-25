@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/include/_fffIPrintable.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,38 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		_fffIPrintable.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		Interface to let objects be printable.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef ___iprintable_h__included__
+#define ___iprintable_h__included__
 
-#include "_intern.h"
+#include "_base.h"
+#include "logstream.h"
+#include <ostream>
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+using namespace std;
+using namespace fff::_Intern;
 
+namespace fff {
+namespace _Intern {
 
-
-namespace fff
+class iprintable
 {
-	extern const char *gLicenseInformation;
-}
-		
+public:
+	virtual void print(logstream &out) const = 0;
+};
 
-#endif /* ifndef __fff_h__included__ */
+}
+}
+
+ostream &operator<<(ostream &stream, const iprintable &printable);
+
+/*
+logstream &operator<<(logstream &lhs, const iprintable &printable);
+*/
+#endif

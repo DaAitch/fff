@@ -33,12 +33,13 @@
 
 #include "../include/fff.h"
 
-_fff_BEGIN_NAMESPACE
+namespace fff
+{
 
-const char *gLicenseInformation =
-	"Fast Filtering Framework  Copyright (C) 2012  Philipp Renoth <fff@aitch.de>\n"
-    "This program comes with ABSOLUTELY NO WARRANTY.\n"
-    "This is free software, and you are welcome to redistribute it\n"
-    "under certain conditions.";
+	const char *gLicenseInformation =
+		"Fast Filtering Framework  Copyright (C) 2012  Philipp Renoth <fff@aitch.de>\n"
+		"This program comes with ABSOLUTELY NO WARRANTY.\n"
+		"This is free software, and you are welcome to redistribute it\n"
+		"under certain conditions.";
 
-_fff_END_NAMESPACE
+}

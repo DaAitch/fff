@@ -9,6 +9,14 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="InteractiveTesting|Win32">
+      <Configuration>InteractiveTesting</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="InteractiveTesting|x64">
+      <Configuration>InteractiveTesting</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -41,13 +49,23 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -72,10 +90,16 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Test|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -100,6 +124,18 @@
     <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(OPENCL)lib\x86;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|Win32'">
+    <OutDir>$(ProjectDir)bin\x86\</OutDir>
+    <TargetExt>.exe</TargetExt>
+    <TargetName>$(ProjectName)d</TargetName>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCL)lib\x86;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)lib\x86\</OutDir>
@@ -123,6 +159,18 @@
     <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(OPENCL)lib\x86_64;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|x64'">
+    <OutDir>$(ProjectDir)lib\x86_64\</OutDir>
+    <TargetExt>.lib</TargetExt>
+    <TargetName>$(ProjectName)d</TargetName>
+    <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(OPENCL)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OPENCL)lib\x86_64;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)lib\x86_64\</OutDir>
@@ -152,15 +200,51 @@
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
     <Lib>
       <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
+    <PostBuildEvent>
+      <Command>echo Profiling $(TargetPath)
+"$(VSInstallDir)Team Tools\Performance Tools\vsinstr.exe" "$(TargetPath)" /COVERAGE
+echo Starting Performance Monitor in new window...
+START "Performance Monitor" "$(VSInstallDir)Team Tools\Performance Tools\VSPerfMon.exe" /COVERAGE /OUTPUT:"$(ProjectDir)result.coverage"
+echo Starting fff Test...
+Sleep 1
+"$(TargetPath)"
+echo fff Test finished...
+"$(VSInstallDir)Team Tools\Performance Tools\VSPerfCmd.exe" /SHUTDOWN
+echo all work done import $(ProjectDir)result.coverage now</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_TEST;_fff_INTERACTIVE_TESTING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>false</Profile>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -182,15 +266,50 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
     </Link>
     <Lib>
       <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
+    <PostBuildEvent>
+      <Command>echo Profiling $(TargetPath)
+"$(VSInstallDir)Team Tools\Performance Tools\vsinstr.exe" "$(TargetPath)" /COVERAGE
+echo Starting Performance Monitor in new window...
+START "Performance Monitor" "$(VSInstallDir)Team Tools\Performance Tools\VSPerfMon.exe" /COVERAGE /OUTPUT:"$(ProjectDir)result.coverage"
+echo Starting fff Test...
+Sleep 1
+"$(TargetPath)"
+echo fff Test finished...
+"$(VSInstallDir)Team Tools\Performance Tools\VSPerfCmd.exe" /SHUTDOWN
+echo all work done import $(ProjectDir)result.coverage now</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='InteractiveTesting|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_TEST;_fff_INTERACTIVE_TESTING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenCL.lib</AdditionalDependencies>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -231,53 +350,144 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cl\_.h.cl" />
+    <ClInclude Include="include\buffer.h" />
+    <ClInclude Include="include\Buffer\complex.h" />
+    <ClInclude Include="include\Buffer\Complex\device.h" />
+    <ClInclude Include="include\Buffer\Complex\Device\DevMultiChannel.h" />
+    <ClInclude Include="include\Buffer\Complex\host.h" />
+    <ClInclude Include="include\Buffer\Complex\ubiquitous.h" />
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\IUbiMultiChannel.h" />
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelPreallocated.h" />
+    <ClInclude Include="include\computing.h" />
+    <ClInclude Include="include\Computing\kernel.h" />
+    <ClInclude Include="include\Computing\optimization.h" />
+    <ClInclude Include="include\Computing\Optimization\Unroll.h" />
+    <ClInclude Include="include\Computing\runtimemapping.h" />
     <ClInclude Include="include\fff.h" />
-    <ClInclude Include="include\fffClEnv.h" />
-    <ClInclude Include="include\fffCompiler.h" />
-    <ClInclude Include="include\fffComputingData.h" />
-    <ClInclude Include="include\fffComputingMap.h" />
-    <ClInclude Include="include\fffConvKernel.h" />
-    <ClInclude Include="include\fffCv.h" />
-    <ClInclude Include="include\fffCvDevSChBuf.h" />
-    <ClInclude Include="include\fffCvHstMChBuf.h" />
-    <ClInclude Include="include\fffCvHstMChBufPreallocated.h" />
-    <ClInclude Include="include\fffCvHstSChBuf.h" />
-    <ClInclude Include="include\fffCvUbiMChBuf.h" />
-    <ClInclude Include="include\fffDevProps.h" />
-    <ClInclude Include="include\fffFileReader.h" />
-    <ClInclude Include="include\fffICvMChBuf.h" />
-    <ClInclude Include="include\fffTesting.h" />
-    <ClInclude Include="include\fffTFuncKernel.h" />
-    <ClInclude Include="include\fffV.h" />
-    <ClInclude Include="include\fffWave.h" />
-    <ClInclude Include="include\fffWavReader.h" />
-    <ClInclude Include="include\fffWavWriter.h" />
-    <ClInclude Include="include\_fffBase.h" />
-    <ClInclude Include="include\_fffException.h" />
-    <ClInclude Include="include\_fffIPrintable.h" />
-    <ClInclude Include="include\_fffLogStream.h" />
-    <ClInclude Include="include\__fffDebugging.h" />
-    <ClInclude Include="include\__fffDevelHost.h" />
-    <ClInclude Include="include\__fffTools.h" />
-    <ClInclude Include="include\__fffTypes.h" />
+    <ClInclude Include="include\Computing\OpenCLEnvironment.h" />
+    <ClInclude Include="include\Computing\Compiler.h" />
+    <ClInclude Include="include\Computing\RuntimeMapping\ComputingData.h" />
+    <ClInclude Include="include\Computing\RuntimeMapping\Mapper.h" />
+    <ClInclude Include="include\Computing\Kernel\Convolution.h" />
+    <ClInclude Include="include\Computing\Kernel\FastConvolution.h" />
+    <ClInclude Include="include\buffer\complex\ComplexVector.h" />
+    <ClInclude Include="include\buffer\complex\device\DevSingleChannel.h" />
+    <ClInclude Include="include\buffer\complex\host\HostMultiChannel.h" />
+    <ClInclude Include="include\buffer\complex\host\HostMultiChannelPreallocated.h" />
+    <ClInclude Include="include\buffer\complex\host\HostSingleChannel.h" />
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelBase.h" />
+    <ClInclude Include="include\Computing\RuntimeMapping\DeviceProperties.h" />
+    <ClInclude Include="include\filesystem.h" />
+    <ClInclude Include="include\Filesystem\FileReader.h" />
+    <ClInclude Include="include\buffer\complex\host\IHostMultiChannel.h" />
+    <ClInclude Include="include\Computing\Kernel\KernelBase.h" />
+    <ClInclude Include="include\Computing\Optimization\Worker.h" />
+    <ClInclude Include="include\Computing\Kernel\Transformation.h" />
+    <ClInclude Include="include\Testing\Base\_testingbase.h" />
+    <ClInclude Include="include\Testing\testintern.h" />
+    <ClInclude Include="include\Testing\testopenclc99.h" />
+    <ClInclude Include="include\Testing\testclasses.h" />
+    <ClInclude Include="include\Computing\Kernel\TransferFunction.h" />
+    <ClInclude Include="include\buffer\complex\ubiquitous\UbiMultiChannel.h" />
+    <ClInclude Include="include\buffer\Vector.h" />
+    <ClInclude Include="include\Filesystem\wave.h" />
+    <ClInclude Include="include\Filesystem\WaveReader.h" />
+    <ClInclude Include="include\Filesystem\WaveWriter.h" />
+    <ClInclude Include="include\_intern.h" />
+    <ClInclude Include="include\_intern\exceptionsruntime.h" />
+    <ClInclude Include="include\_intern\exceptionsinternal.h" />
+    <ClInclude Include="include\_intern\_base.h" />
+    <ClInclude Include="include\_intern\exceptions.h" />
+    <ClInclude Include="include\_intern\iprintable.h" />
+    <ClInclude Include="include\_intern\logstream.h" />
+    <ClInclude Include="include\_intern\path.h" />
+    <ClInclude Include="include\_intern\exceptionsrtclc.h" />
+    <ClInclude Include="include\_intern\rtclc.h" />
+    <ClInclude Include="include\_intern\_tools.h" />
+    <ClInclude Include="include\_intern\typecast.h" />
+    <ClInclude Include="include\_intern\_ns.h" />
+    <ClInclude Include="include\_intern\_types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Computing\Kernel\KernelBase.cpp" />
     <ClCompile Include="src\fff.cpp" />
-    <ClCompile Include="src\fffClEnv.cpp" />
-    <ClCompile Include="src\fffCompiler.cpp" />
-    <ClCompile Include="src\fffDevProps.cpp" />
-    <ClCompile Include="src\fffTesting.cpp" />
-    <ClCompile Include="src\maintest.cpp" />
-    <ClCompile Include="src\_fffLogStream.cpp" />
-    <ClCompile Include="src\__fffDebugging.cpp" />
+    <ClCompile Include="src\Computing\OpenCLEnvironment.cpp" />
+    <ClCompile Include="src\Computing\Compiler.cpp" />
+    <ClCompile Include="src\Computing\RuntimeMapping\DeviceProperties.cpp" />
+    <ClCompile Include="src\Testing\Base\_testingbase.cpp" />
+    <ClCompile Include="src\Testing\testclasses.cpp" />
+    <ClCompile Include="src\Testing\testintern.cpp" />
+    <ClCompile Include="src\Testing\testopenclc99.cpp" />
+    <ClCompile Include="src\_intern\rtclc.cpp" />
+    <ClCompile Include="src\_intern\exceptions.cpp" />
+    <ClCompile Include="src\_intern\iprintable.cpp" />
+    <ClCompile Include="src\_intern\logstream.cpp" />
+    <ClCompile Include="src\_intern\path.cpp" />
+    <ClCompile Include="src\_intern\typecast.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cl\fffConvolution.cpp.cl">
-      <FileType>Document</FileType>
-    </ClCompile>
-    <ClInclude Include="cl\fffConvolution.h.cl">
+    <ClInclude Include="cl\fff.h.cl">
       <FileType>Document</FileType>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cl\math.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\math.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\dconv.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\dconv.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\dsp.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\dsp.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\fconv.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\fconv.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\dft.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\dft.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\fft.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\fft.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\tf.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClInclude Include="cl\tf.h.cl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClCompile Include="cl\bits.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <None Include="cl\bits.h.cl" />
+    <None Include="cl\consts.h.cl" />
+    <ClCompile Include="cl\fff.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <ClCompile Include="cl\overlapsave.cpp.cl">
+      <FileType>Document</FileType>
+    </ClCompile>
+    <None Include="cl\overlapsave.h.cl" />
+    <None Include="cl\_.cl" />
+    <None Include="codetemplates\code.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

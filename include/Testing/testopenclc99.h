@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/include/Testing/OpenCLC99.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,57 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		fffTesting.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		fff testing functions.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifdef _TEST
 
-#include "_intern.h"
+#ifndef __testopenclc99_h__included__
+#define __testopenclc99_h__included__
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+//- PROJECT INCLUDES --------------------------------------+
+#include "../../cl/_.h.cl"
+#include "Base/_testingbase.h"
+//---------------------------------------------------------+
+
+//- EXTERNAL INCLUDES -------------------------------------+
+//---------------------------------------------------------+
+
+//- NAMESPACES --------------------------------------------+
+using namespace fff::Testing::Base;
+//---------------------------------------------------------+
+
+namespace fff {
+namespace Testing {
+
+fff_TEST_DECLARE(fff, openclc99)
+
+namespace OpenCLC99 {
+
+// bits
+fff_TEST_DECLARE(openclc99, POW2)
+fff_TEST_DECLARE(openclc99, BITMASK)
+fff_TEST_DECLARE(openclc99, BITSWAPONLY)
+fff_TEST_DECLARE(openclc99, bit_reversal)
+
+fff_TEST_DECLARE(openclc99, factorial)
+
+fff_TEST_DECLARE(openclc99, multiple2)
+fff_TEST_DECLARE(openclc99, calcOverlapSaveSampleOffset)
+fff_TEST_DECLARE(openclc99, calcOverlapSaveSampleCount)
+fff_TEST_DECLARE(openclc99, fftButterfly)
+
+fff_TEST_DECLARE(openclc99, dconv)
 
 
-
-namespace fff
-{
-	extern const char *gLicenseInformation;
 }
-		
+}
+}
 
-#endif /* ifndef __fff_h__included__ */
+#endif
+
+#endif

@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/cl/fff.cpp.cl
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,37 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		fff.cpp.cl
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		FFF Host/Dev compatibility.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+//---------------------------------------------------------+
+//! PROJECT INCLUDES
+//!=========================================================
+#include "../include/_intern.h"
+#include "fff.h.cl"
+//---------------------------------------------------------+
 
-#include "_intern.h"
+//---------------------------------------------------------+
+//! EXTERNAL INCLUDES
+//!=========================================================
+//---------------------------------------------------------+
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+//---------------------------------------------------------+
+//! NAMESPACES
+//!=========================================================
+_fff_USING_NAMESPACE
+//---------------------------------------------------------+
+
+
+_fff_BEGIN_NAMESPACE
+_fff_BEGIN_NAMESPACE_CL
 
 
 
-namespace fff
-{
-	extern const char *gLicenseInformation;
-}
-		
 
-#endif /* ifndef __fff_h__included__ */
+_fff_END_NAMESPACE
+_fff_END_NAMESPACE

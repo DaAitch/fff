@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/cl/dsp.h.cl
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,55 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		dsp.h.cl
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		Digital signal processing.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef __dsp_h_cl__included__
+#define __dsp_h_cl__included__
 
-#include "_intern.h"
+//---------------------------------------------------------+
+//! PROJECT INCLUDES
+//!=========================================================
+#include "../include/_intern.h"
+//---------------------------------------------------------+
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+//---------------------------------------------------------+
+//! EXTERNAL INCLUDES
+//!=========================================================
+//---------------------------------------------------------+
+
+//---------------------------------------------------------+
+//! NAMESPACES
+//!=========================================================
+_fff_USING_NAMESPACE
+//---------------------------------------------------------+
+
+_fff_BEGIN_NAMESPACE
+_fff_BEGIN_NAMESPACE_CL
 
 
 
-namespace fff
-{
-	extern const char *gLicenseInformation;
-}
-		
+#ifdef _fff_IMPLEMENT_CLCODE
 
-#endif /* ifndef __fff_h__included__ */
+#define _I0_M			5
+#define _KAISER_ALPHA	4
+
+Sample _kaiserWindow(
+	UInt n,
+	UInt kernel_size,
+	Sample alpha
+	);
+
+Sample _I0(
+	Sample x
+	);
+#endif
+
+_fff_END_NAMESPACE
+_fff_END_NAMESPACE
+
+#endif

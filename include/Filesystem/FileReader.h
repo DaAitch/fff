@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/include/fffFileReader.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,69 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		fffFileReader.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		Simple reads whole file.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef __ffffilereader_h__included__
+#	define __ffffilereader_h__included__
 
-#include "_intern.h"
+#	include "../_intern/_base.h"
+#	include <fstream>
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+	_fff_BEGIN_NAMESPACE
 
+	class FileReader
+	{
+	public:
+		FileReader(
+			String file,
+			std::ios::openmode mode = std::ios::binary)
+			:
+			m_content(NULL)
+		{
+			std::ifstream f(file, mode);
 
+			if(f)
+			{
+				f.seekg(0, std::ios::end);
+				Long size = f.tellg();
+				f.seekg(0, std::ios::beg);
 
-namespace fff
-{
-	extern const char *gLicenseInformation;
-}
-		
+				m_content = new char[(UInt)size+1];
+				f.read(m_content, size);
+				m_content[size]=0;
+				f.close();
+			}
+		}
 
-#endif /* ifndef __fff_h__included__ */
+		~FileReader()
+		{
+			if(m_content)
+				delete [] m_content;
+			m_content = NULL;
+		}
+
+		const char *getContent() const
+		{
+			return
+				m_content;
+		}
+
+		bool operator!() const
+		{
+			return
+				!m_content;
+		}
+
+	private:
+		char *m_content;
+
+	};
+
+	_fff_END_NAMESPACE
+
+#endif

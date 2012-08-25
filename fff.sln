@@ -7,6 +7,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		InteractiveTesting|Win32 = InteractiveTesting|Win32
+		InteractiveTesting|x64 = InteractiveTesting|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 		Test|Win32 = Test|Win32
@@ -17,6 +19,10 @@ Global
 		{A2457034-7538-44C4-A291-75616A94BF39}.Debug|Win32.Build.0 = Debug|Win32
 		{A2457034-7538-44C4-A291-75616A94BF39}.Debug|x64.ActiveCfg = Debug|x64
 		{A2457034-7538-44C4-A291-75616A94BF39}.Debug|x64.Build.0 = Debug|x64
+		{A2457034-7538-44C4-A291-75616A94BF39}.InteractiveTesting|Win32.ActiveCfg = InteractiveTesting|Win32
+		{A2457034-7538-44C4-A291-75616A94BF39}.InteractiveTesting|Win32.Build.0 = InteractiveTesting|Win32
+		{A2457034-7538-44C4-A291-75616A94BF39}.InteractiveTesting|x64.ActiveCfg = InteractiveTesting|x64
+		{A2457034-7538-44C4-A291-75616A94BF39}.InteractiveTesting|x64.Build.0 = InteractiveTesting|x64
 		{A2457034-7538-44C4-A291-75616A94BF39}.Release|Win32.ActiveCfg = Release|Win32
 		{A2457034-7538-44C4-A291-75616A94BF39}.Release|Win32.Build.0 = Release|Win32
 		{A2457034-7538-44C4-A291-75616A94BF39}.Release|x64.ActiveCfg = Release|x64

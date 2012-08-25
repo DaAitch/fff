@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/cl/_.cl
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,49 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		_.cl
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		OpenCL Implementation.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef ____cl__included__
+#define ____cl__included__
 
-#include "_intern.h"
+//---------------------------------------------------------+
+//! PROJECT INCLUDES
+//!=========================================================
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+// misc
+#include "bits.cpp.cl"
+#include "math.cpp.cl"
+
+// fourier
+#include "dft.cpp.cl"
+#include "fft.cpp.cl"
+
+// conv
+#include "dconv.cpp.cl"
+#include "fconv.cpp.cl"
+#include "overlapsave.cpp.cl"
+#include "tf.cpp.cl"
+
+// dsp
+#include "dsp.cpp.cl"
+//---------------------------------------------------------+
+
+//---------------------------------------------------------+
+//! EXTERNAL INCLUDES
+//!=========================================================
+//---------------------------------------------------------+
+
+//---------------------------------------------------------+
+//! NAMESPACES
+//!=========================================================
+//---------------------------------------------------------+
 
 
+#endif
 
-namespace fff
-{
-	extern const char *gLicenseInformation;
-}
-		
 
-#endif /* ifndef __fff_h__included__ */

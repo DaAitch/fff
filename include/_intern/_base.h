@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/include/_intern/_base.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,53 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		_base.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		Central base definitions including extern
+//!				libraries and distinguish whether to
+//!				use Host code or Device code for
+//!				file type definitions etc.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef ___base_h__included__
+#define ___base_h__included__
 
-#include "_intern.h"
+//---------------------------------------------------------+
+//! PROJECT INCLUDES
+//!=========================================================
+//---------------------------------------------------------+
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+//---------------------------------------------------------+
+//! EXTERNAL INCLUDES
+//!=========================================================
+//---------------------------------------------------------+
+
+//---------------------------------------------------------+
+//! NAMESPACES
+//!=========================================================
+//---------------------------------------------------------+
+
+#ifdef fff_USE_64
+#error 64bit doubles does not work yet! Do not define fff_USE_64!
+#endif
+
+#ifndef _fff_IS_DEV
+
+#if defined(_WIN32) || defined(_WIN64)
+#define _fff_WIN
+#else
+#error Unknown OS not supported!
+#endif
 
 
+#ifdef _fff_WIN
+#define fff_DS '\\'
+#else
+#define fff_DS '/'
+#endif
 
-namespace fff
-{
-	extern const char *gLicenseInformation;
-}
-		
+#endif
 
-#endif /* ifndef __fff_h__included__ */
+#endif

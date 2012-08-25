@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fff.h
+// fff/cl/consts.h.cl
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,28 +24,55 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fff.h
+//!	\file		consts.h.cl
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Framework include file.
+//!	\brief		Some constants.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fff_h__included__
-#define __fff_h__included__
+#ifndef __consts_h_cl__included__
+#define __consts_h_cl__included__
 
-#include "_intern.h"
+//---------------------------------------------------------+
+//! PROJECT INCLUDES
+//!=========================================================
+#include "../include/_intern.h"
+//---------------------------------------------------------+
 
-#include "buffer.h"
-#include "computing.h"
-#include "filesystem.h"
+//---------------------------------------------------------+
+//! EXTERNAL INCLUDES
+//!=========================================================
+//---------------------------------------------------------+
+
+//---------------------------------------------------------+
+//! NAMESPACES
+//!=========================================================
+_fff_USING_NAMESPACE
+//---------------------------------------------------------+
+
+_fff_BEGIN_NAMESPACE
+_fff_BEGIN_NAMESPACE_CL
 
 
+//! Zero sample value
+#define fff_SMP_ZERO \
+	((Sample)0)
 
-namespace fff
-{
-	extern const char *gLicenseInformation;
-}
-		
+//! One sample value
+#define fff_SMP_ONE \
+	((Sample)1)
 
-#endif /* ifndef __fff_h__included__ */
+//! PI as sample value
+#define fff_M_PI \
+	((Sample)3.14159265358979323846)
+
+//! typeless zero
+#define fff_NULL \
+	0
+
+_fff_END_NAMESPACE
+_fff_END_NAMESPACE
+
+
+#endif
