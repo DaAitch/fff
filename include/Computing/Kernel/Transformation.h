@@ -131,22 +131,10 @@
 
                 fff_RTCLC_ERR_INIT();
 
-                if(!getCompiler().getWorker().isOptimized())
-                {
-					fff_RTCLC_SEQ_CHECK_RET(
-						getKernel().setArg(
-							param++, getFrom().getUbiBuffer().getReal()));
-					fff_RTCLC_SEQ_CHECK_RET(
-						getKernel().setArg(
-							param++, getFrom().getUbiBuffer().getImag()));
-                }
-
-				fff_RTCLC_SEQ_CHECK_RET(
-					getKernel().setArg(
-						param++, getTo().getUbiBuffer().getReal()));
-				fff_RTCLC_SEQ_CHECK_RET(
-					getKernel().setArg(
-						param++, getTo().getUbiBuffer().getImag()));
+				param++; // from real
+                param++; // from imag
+                param++; // to real
+                param++; // to imag
 
                 UInt lb2BlockN = cl::lb2Multiple2In(getFrom().getHostBuffer().getSampleCount());
 
@@ -171,6 +159,20 @@
 					channel < getContinuous().getHostBuffer().getChannelCount();
 					++channel)
 				{
+                    fff_RTCLC_SEQ_CHECK_RET(
+					    getKernel().setArg(
+						    0, getFrom().getUbiBuffer().getChannel(channel).getReal()));
+				    fff_RTCLC_SEQ_CHECK_RET(
+					    getKernel().setArg(
+						    1, getFrom().getUbiBuffer().getChannel(channel).getImag()));
+
+				    fff_RTCLC_SEQ_CHECK_RET(
+					    getKernel().setArg(
+						    2, getTo().getUbiBuffer().getChannel(channel).getReal()));
+				    fff_RTCLC_SEQ_CHECK_RET(
+					    getKernel().setArg(
+						    3, getTo().getUbiBuffer().getChannel(channel).getImag()));
+
                     // copy From to Host
                     getFrom().getUbiBuffer().enqueueDeviceUpdate(channel);
 
@@ -179,8 +181,8 @@
                     {
                         // we dont need no From, so
                         // copy From -> To
-                        getFrom().getUbiBuffer().enqueueCopy(
-                            getTo().getUbiBuffer());
+                        getFrom().getUbiBuffer()[channel].enqueueCopy(
+                            getTo().getUbiBuffer()[channel]);
                     }
 
                     enqueueNDRange(

@@ -56,7 +56,6 @@ public:
 	typedef SampleType MySample;
 	typedef DevSingleChannel<MySample> My;
 
-private:
     DevSingleChannel()
         :
         m_sampleCount(0),
@@ -64,7 +63,6 @@ private:
     {
     }
 
-public:
 	DevSingleChannel(
 		const OpenCLEnvironment &env,
 		cl_mem_flags flags,
@@ -77,9 +75,6 @@ public:
 		m_memFlags(
 			0)
 	{
-		assert(
-			!isAllocated());
-
 		alloc(
 			flags,
 			sampleCount);

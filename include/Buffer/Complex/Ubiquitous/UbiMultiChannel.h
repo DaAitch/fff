@@ -45,7 +45,10 @@ public:
                 
         m_ubiBuffer.setHostMultiChannel(
             &getHostBuffer());
-        m_ubiBuffer.alloc(flags, sampleCount);
+        m_ubiBuffer.alloc(
+            flags, 
+            channelCount,
+            sampleCount);
 
         fff_EXPECT_VALID_THIS();
 	}

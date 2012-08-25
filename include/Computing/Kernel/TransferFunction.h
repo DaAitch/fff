@@ -37,7 +37,7 @@
 #	define __ffftfunckernel_h__included__
 
 #	include "../../_intern/_base.h"
-#	include "../../Buffer/Complex/Device/DevSingleChannel.h"
+#	include "../../Buffer/Complex/Device/DevMultiChannel.h"
 #include "../../Buffer/Complex/Ubiquitous/UbiMultiChannel.h"
 #include "KernelBase.h"
 
@@ -118,6 +118,7 @@ public:
 
 		m_tmp.alloc(
 			CL_MEM_READ_WRITE,
+            getH().getHostBuffer().getChannelCount(),
 			getH().getHostBuffer().getSampleCount());
 
         fff_EXPECT_VALID_OBJ(getTmp());
@@ -126,30 +127,14 @@ public:
 
         UInt param = 0;
 
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getB().getUbiBuffer().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getB().getUbiBuffer().getImag()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getA().getUbiBuffer().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getA().getUbiBuffer().getImag()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getTmp().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getTmp().getImag()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getH().getUbiBuffer().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getH().getUbiBuffer().getImag()));
+		param++; // b real
+        param++; // b imag
+        param++; // a real
+        param++; // a imag
+        param++; // tmp real
+        param++; // tmp imag
+        param++; // H real
+        param++; // H imag
 
         UInt lb2N = cl::lb2Multiple2In(getH().getHostBuffer().getSampleCount());
         m_lb2W = smartLb2WorkerLimit(lb2N-1);
@@ -168,12 +153,37 @@ public:
 
 	void invoke()
 	{
-
+        fff_RTCLC_ERR_INIT();
 		for(
 			UInt channel = 0;
 			channel < getB().getHostBuffer().getChannelCount();
 			++channel)
 		{
+            fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    0, getB().getUbiBuffer().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    1, getB().getUbiBuffer().getChannel(channel).getImag()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    2, getA().getUbiBuffer().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    3, getA().getUbiBuffer().getChannel(channel).getImag()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    4, getTmp().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    5, getTmp().getChannel(channel).getImag()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    6, getH().getUbiBuffer().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    7, getH().getUbiBuffer().getChannel(channel).getImag()));
+
 			getB().getUbiBuffer().enqueueDeviceUpdate(
 				channel);
 			getA().getUbiBuffer().enqueueDeviceUpdate(
@@ -224,7 +234,7 @@ private:
         fff_EXPECT_VALID_OBJ_RET(m_tmp);
     }
 
-    DevSingleChannel<SampleType> &getTmp()
+    DevMultiChannel<SampleType> &getTmp()
     {
         fff_EXPECT_VALID_OBJ_RET(m_tmp);
     }
@@ -239,7 +249,7 @@ private:
 	IUbiMultiChannel<SampleType>
 		&m_H;
 
-	DevSingleChannel<SampleType>
+	DevMultiChannel<SampleType>
 		m_tmp;
 };
 

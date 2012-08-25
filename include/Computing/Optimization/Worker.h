@@ -82,6 +82,9 @@ public:
 	{
 		if(isOptimized())
 		{
+            // to be implemented
+            fff_UNEXPECTED_PATH();
+
             options << " ";
 			options << " -D _fff_OPTIMIZE ";
 			options << " -D _fff_OPTIMIZE_PARAM_LB2N=" << getLb2BlockN();

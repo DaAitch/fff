@@ -151,50 +151,33 @@ public:
 
 		m_in.alloc(
 			CL_MEM_READ_ONLY,
+            getH().getHostBuffer().getChannelCount(),
 			getS().getHostBuffer().getSampleCount() +
 			getX().getHostBuffer().getSampleCount());
 		m_tmp1.alloc(
 			CL_MEM_READ_WRITE,
+            getH().getHostBuffer().getChannelCount(),
 			extensionElementsCount);
 		m_tmp2.alloc(
 			CL_MEM_READ_WRITE,
+            getH().getHostBuffer().getChannelCount(),
 			extensionElementsCount);
 
         UInt param = 0;
 
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getIn().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getIn().getImag()));
+		param++; // in real
+        param++; // in imag
+        param++; // in size
+        param++; // H real
+        param++; // H imag
+        param++; // tmp1 real
+        param++; // tmp1 imag
+        param++; // tmp2 real
+        param++; // tmp2 real
+        param++; // y real
+        param++; // y imag
 
-        m_xsizeParam = param++;
-
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getH().getUbiBuffer().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getH().getUbiBuffer().getImag()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getTmp1().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getTmp1().getImag()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getTmp2().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getTmp2().getImag()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getY().getUbiBuffer().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getY().getUbiBuffer().getImag()));
+   
 
         param = dontOptimizeArgs(
             getLb2N(),
@@ -224,7 +207,7 @@ public:
         fff_RTCLC_ERR_INIT();
 
         fff_RTCLC_SEQ_CHECK(
-            getKernel().setArg(m_xsizeParam,
+            getKernel().setArg(2,
                 getS().getHostBuffer().getSampleCount() +
                 getX().getHostBuffer().getSampleCount()));
 
@@ -237,21 +220,53 @@ public:
 			channel < getS().getHostBuffer().getChannelCount();
 			++channel)
 		{
-            
+            fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    0, getIn().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    1, getIn().getChannel(channel).getImag()));
+
+            // 2 = xsize
+
+            fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    3, getH().getUbiBuffer().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    4, getH().getUbiBuffer().getChannel(channel).getImag()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    5, getTmp1().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    6, getTmp1().getChannel(channel).getImag()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    7, getTmp2().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    8, getTmp2().getChannel(channel).getImag()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    9, getY().getUbiBuffer().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    10, getY().getUbiBuffer().getChannel(channel).getImag()));
 
 			getS().getUbiBuffer().enqueueDeviceUpdate(
 				channel);
                 
-			getS().getUbiBuffer().enqueueCopy(
-				getIn(),
+			getS().getUbiBuffer().getChannel(channel).enqueueCopy(
+				getIn().getChannel(channel),
 				0,
 				sSize);
 
 			getX().getUbiBuffer().enqueueDeviceUpdate(
 				channel);
 
-			getX().getUbiBuffer().enqueueCopy(
-				getIn(),
+			getX().getUbiBuffer().getChannel(channel).enqueueCopy(
+				getIn().getChannel(channel),
 				sSize,
 				xSize);
    
@@ -264,8 +279,8 @@ public:
 			getY().getUbiBuffer().enqueueHostUpdate(
 				channel);
 
-			getIn().enqueueCopy(
-				getS().getUbiBuffer(),
+			getIn().getChannel(channel).enqueueCopy(
+				getS().getUbiBuffer().getChannel(channel),
                 xSize,
 				0,
 				sSize);
@@ -356,37 +371,37 @@ public:
 
 private:
 
-    const DevSingleChannel<SampleType> &getIn() const
+    const DevMultiChannel<SampleType> &getIn() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_in);
     }
 
-    DevSingleChannel<SampleType> &getIn()
+    DevMultiChannel<SampleType> &getIn()
     {
         fff_EXPECT_VALID_OBJ_RET(m_in);
     }
 
-    const DevSingleChannel<SampleType> &getTmp1() const
+    const DevMultiChannel<SampleType> &getTmp1() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_tmp1);
     }
 
-    DevSingleChannel<SampleType> &getTmp1()
+    DevMultiChannel<SampleType> &getTmp1()
     {
         fff_EXPECT_VALID_OBJ_RET(m_tmp1);
     }
 
-    const DevSingleChannel<SampleType> &getTmp2() const
+    const DevMultiChannel<SampleType> &getTmp2() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_tmp2);
     }
 
-    DevSingleChannel<SampleType> &getTmp2()
+    DevMultiChannel<SampleType> &getTmp2()
     {
         fff_EXPECT_VALID_OBJ_RET(m_tmp2);
     }
 
-	DevSingleChannel<SampleType>
+	DevMultiChannel<SampleType>
 		m_in,
 		m_tmp1,
 		m_tmp2;
@@ -406,9 +421,6 @@ private:
 
     UInt
         m_lb2N;
-
-    UInt m_xsizeParam;
-			
 };
 
 }

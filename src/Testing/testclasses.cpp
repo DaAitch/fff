@@ -864,7 +864,8 @@ fff_TEST_BEGIN_IMPL(classes, UbiMultiChannelBase)
 
     {
         OpenCLEnvironment env(CL_DEVICE_TYPE_DEFAULT);
-        
+        fff_TEST_OK(env);
+
         HostMultiChannel<Float> hmc(2, 2);
         UbiMultiChannelBase<Float> to(env, CL_MEM_READ_WRITE, &hmc, False);
 
@@ -872,7 +873,7 @@ fff_TEST_BEGIN_IMPL(classes, UbiMultiChannelBase)
         Float c2[] = {3.f, 4.f};
         Float *ch[2] = { {c1}, {c2} };
         HostMultiChannelPreallocated<Float> hmcp;
-        UbiMultiChannelBase<Float> from(env, CL_MEM_READ_WRITE, 2, False);
+        UbiMultiChannelBase<Float> from(env, CL_MEM_READ_WRITE, 2, 2, False);
         hmcp.alloc(2, 2);
         hmcp.setPointer(ch, 2);
         from.setHostMultiChannel(&hmcp);
@@ -890,7 +891,7 @@ fff_TEST_BEGIN_IMPL(classes, UbiMultiChannelBase)
         from.enqueueDeviceUpdate(0);
 
         // copy buffer
-        from.enqueueCopy(to);
+        from[0].enqueueCopy(to[0]);
 
         // fetch destination buffer
         to.enqueueHostUpdate(0);
@@ -908,7 +909,7 @@ fff_TEST_BEGIN_IMPL(classes, UbiMultiChannelBase)
         from.enqueueDeviceUpdate(1);
 
         // copy buffer
-        from.enqueueCopy(to);
+        from[1].enqueueCopy(to[1]);
 
         // fetch destination buffer
         to.enqueueHostUpdate(1);
@@ -2173,53 +2174,7 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
 
 
     fff_TEST_END_SECTION()
-    /*
-    fff_TEST_BEGIN_SECTION("complex scenary")
-        
-        // read wav file with 60000 samples
-        const UInt M = 60000;
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 1, 131072);
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 1, 131072);
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 1, 131072);
-
-        // poles
-        a.getHostBuffer().getRawReal(0)[0] = 1.f;
-
-        // First and last sample of M (our read wav file)
-        b.getHostBuffer().getRawReal(0)[0] = 1.f;
-        b.getHostBuffer().getRawReal(0)[99999] = 1.f;
-
-        // a = [1 0 0 ... 0]
-        // b = [1 0 0 ... 1]
-
-        TransferFunction<Float> tra(c, b, a, H);
-        tra.invokeAndWait();
-
-        // state 99999
-        UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, 1, M-1);
-        UbiMultiChannelPreallocated<Float> x(env, CL_MEM_READ_ONLY);
-        UbiMultiChannelPreallocated<Float> y(env, CL_MEM_READ_WRITE);
-
-        // expected not more than 477 samples
-        x.allocMax(1, 477);
-        y.allocMax(1, 477);
-        
-        FastConvolution<Float> fconv(c, s, x, H, y, 1);
-
-        
-        x.getHostBuffer().init();
-        for(UInt i = 0; i < x.getHostBuffer().getSampleCount(); ++i)
-            x.getHostBuffer().getRawReal(0)[i] = (Float)i;
-
-        fconv.invokeAndWait();
-
-        fff_EXPECT(
-            variance(x.getHostBuffer().getRawReal(0),
-
-        
-
-    fff_TEST_END_SECTION()
-    */
+    
 fff_TEST_END_IMPL()
 
 } } }

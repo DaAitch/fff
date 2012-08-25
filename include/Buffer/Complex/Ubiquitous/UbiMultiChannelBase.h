@@ -39,7 +39,7 @@
 #include "../../../_intern/_base.h"
 #include "../Host/IHostMultiChannel.h"
 #include "../../../Computing/OpenCLEnvironment.h"
-#include "../Device/DevSingleChannel.h"
+#include "../Device/DevMultiChannel.h"
 
 using namespace fff::Buffer::Complex::Device;
 using namespace fff::Buffer::Complex::Host;
@@ -53,11 +53,11 @@ template<
 	class SampleType
 >
 class UbiMultiChannelBase
-	: public DevSingleChannel<SampleType>
+	: public DevMultiChannel<SampleType>
 {
 public:
 	typedef
-		UbiMultiChannelBase<MySample> My;
+		UbiMultiChannelBase<SampleType> My;
 
 public:
 	UbiMultiChannelBase(
@@ -68,7 +68,7 @@ public:
 	:
 		m_env(
 			env),
-		DevSingleChannel(
+		DevMultiChannel(
 			env),
 		m_multiChannel(
 			NULL),
@@ -76,29 +76,39 @@ public:
 			blockingRWs)
 	{
         fff_EXPECT_VALID_PTR(hostMultiChannel);
+        fff_EXPECT_VALID_OBJ(env);
 
         setHostMultiChannel(
             hostMultiChannel);
 
-        alloc(flags, getMultiChannel().getSampleCount());
+        alloc(
+            flags,
+            getMultiChannel().getChannelCount(),
+            getMultiChannel().getSampleCount());
 	}
 
     UbiMultiChannelBase(
 		const OpenCLEnvironment &env,
         cl_mem_flags flags,
+        UInt maxChannelCount,
         UInt maxSampleCount,
 		Bool blockingRWs = False)
 	:
 		m_env(
 			env),
-		DevSingleChannel(
+		DevMultiChannel(
 			env),
 		m_multiChannel(
 			NULL),
 		m_blocking(
 			blockingRWs)
 	{
-        alloc(flags, maxSampleCount);
+        fff_EXPECT_VALID_OBJ(env);
+
+        alloc(
+            flags,
+            maxChannelCount,
+            maxSampleCount);
 	}
 
     void setHostMultiChannel(
@@ -127,7 +137,7 @@ public:
         
 		fff_RTCLC_SEQ_CHECK_RET(
 			queue.enqueueReadBuffer(
-				getReal(),
+				getChannel(channel).getReal(),
 				isBlocking(),
 				0,
 				getMultiChannel().getSampleCount() * getSampleSize(),
@@ -135,7 +145,7 @@ public:
 
 		fff_RTCLC_SEQ_CHECK_RET(
 			queue.enqueueReadBuffer(
-				getImag(),
+				getChannel(channel).getImag(),
 				isBlocking(),
 				0,
 				getMultiChannel().getSampleCount() * getSampleSize(),
@@ -159,19 +169,17 @@ public:
 
 		fff_RTCLC_SEQ_CHECK_RET(
 			queue.enqueueWriteBuffer(
-				getReal(),
+				getChannel(channel).getReal(),
 				isBlocking(),
 				0,
                 getMultiChannel().getSampleCount() * getSampleSize(),
-				//getPerBufferSize(),
 				getMultiChannel().getRawReal(channel)));
 
 		fff_RTCLC_SEQ_CHECK_RET(
 			queue.enqueueWriteBuffer(
-				getImag(),
+				getChannel(channel).getImag(),
 				isBlocking(),
 				0,
-				//getPerBufferSize(),
                 getMultiChannel().getSampleCount() * getSampleSize(),
 				getMultiChannel().getRawImag(channel)));
 	}

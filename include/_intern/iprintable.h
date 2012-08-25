@@ -47,7 +47,10 @@ namespace _Intern {
 class iprintable
 {
 public:
-	virtual void print(logstream &out) const = 0;
+	virtual void print(logstream &out) const
+    {
+        // nothing is default...
+    }
 };
 
 }

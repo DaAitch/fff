@@ -112,18 +112,11 @@ Convolution(
 
         UInt param=0;
 
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getX().getUbiBuffer().getReal()));
-        fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getX().getHostBuffer().getSampleCount()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getH().getUbiBuffer().getReal()));
-		fff_RTCLC_SEQ_CHECK_RET(
-			getKernel().setArg(
-				param++, getY().getUbiBuffer().getReal()));
+		param++; // x
+        param++; // x size
+        param++; // h
+        param++; // y
+
 
         param = dontOptimizeArgs(
             0,
@@ -158,6 +151,8 @@ Convolution(
 
 	void invoke()
 	{
+        fff_RTCLC_ERR_INIT();
+
         fff_EXPECT_VALID_THIS();
 
 		for(
@@ -165,6 +160,19 @@ Convolution(
 			channel < getX().getHostBuffer().getChannelCount();
 			++channel)
 		{
+            fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    0, getX().getUbiBuffer().getChannel(channel).getReal()));
+            fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    1, getX().getHostBuffer().getSampleCount()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    2, getH().getUbiBuffer().getChannel(channel).getReal()));
+		    fff_RTCLC_SEQ_CHECK_RET(
+			    getKernel().setArg(
+				    3, getY().getUbiBuffer().getChannel(channel).getReal()));
+
 			getX().getUbiBuffer().enqueueDeviceUpdate(
 				channel);
 			getH().getUbiBuffer().enqueueDeviceUpdate(

@@ -72,7 +72,7 @@ public:
 
     void allocMax(UInt channelCount, UInt sampleCount)
     {
-        m_ubiBuffer.alloc(getMemFlags(), sampleCount);
+        m_ubiBuffer.alloc(getMemFlags(), channelCount, sampleCount);
         m_hostBuffer.alloc(channelCount, sampleCount);
         m_hostBuffer.setPointer(NULL, sampleCount);
     }

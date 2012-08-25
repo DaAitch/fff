@@ -15,7 +15,8 @@ namespace Device {
 template<
     class SampleType
 >
-class DevMultiChannel
+class DevMultiChannel :
+    public iprintable
 {
 public:
     typedef DevMultiChannel<SampleType> My;
@@ -24,24 +25,35 @@ public:
 private:
     DevMultiChannel()
         :
-        m_sampleCount(0)
+        m_sampleCount(0),
+        m_memFlags(0)
     {
     }
 
 public:
     DevMultiChannel(
-        const OpenCLEnvironment &env
+        const OpenCLEnvironment &env,
         UInt channelCount,
         UInt sampleCount,
         cl_mem_flags flags)
         :
         m_env(env),
-        m_sampleCount(0)
+        m_sampleCount(0),
+        m_memFlags(0)
     {
         alloc(
             channelCount,
             sampleCount,
             flags);
+    }
+
+    DevMultiChannel(
+        const OpenCLEnvironment &env)
+        :
+        m_env(env),
+        m_sampleCount(0),
+        m_memFlags(0)
+    {
     }
 
     My createSubBuffer(
@@ -66,6 +78,7 @@ public:
 
         mch.m_env = getEnv();
         mch.m_sampleCount = sampleCount;
+        mch.m_memFlags = flags;
 
         return mch;
     }
@@ -83,9 +96,9 @@ public:
     }
 
     void alloc(
+        cl_mem_flags flags,
         UInt channelCount,
-        UInt sampleCount,
-        cl_mem_flags flags)
+        UInt sampleCount)
     {
         dealloc();
 
@@ -100,7 +113,8 @@ public:
 
     void dealloc()
     {
-        _dealloc();
+        if(isAllocated())
+            _dealloc();
     }
 
     Bool isAllocated() const throw()
@@ -109,19 +123,19 @@ public:
             _isAllocated();
     }
 
-    DevSingleChannel &operator[](UInt index)
+    DevSingleChannel<SampleType> &operator[](UInt index)
     {
         return
             getChannel(index);
     }
 
-    const DevSingleChannel &operator[](UInt index) const
+    const DevSingleChannel<SampleType> &operator[](UInt index) const
     {
         return
             getChannel(index);
     }
 
-    const DevSingleChannel &getChannel(UInt channel) const
+    const DevSingleChannel<SampleType> &getChannel(UInt channel) const
     {
         fff_EXPECT(
             channel,
@@ -132,7 +146,7 @@ public:
             m_channels[channel];
     }
 
-    DevSingleChannel &getChannel(UInt channel)
+    DevSingleChannel<SampleType> &getChannel(UInt channel)
     {
         fff_EXPECT(
             channel,
@@ -146,7 +160,50 @@ public:
     UInt getChannelCount() const
     {
         return
-            m_channel.size();
+            getChannels().size();
+    }
+
+    UInt getSampleCount() const
+	{
+		return m_sampleCount;
+	}
+
+	UInt getPerBufferSize() const
+	{
+		return getSampleCount() * getSampleSize();
+	}
+
+    UInt getSampleSize() const
+    {
+        return sizeof(SampleType);
+    }
+
+    cl_mem_flags getMemFlags() const
+    {
+        return
+            m_memFlags;
+    }
+
+    bool isWritable() const throw()
+    {
+        return
+            getMemFlags() == CL_MEM_WRITE_ONLY ||
+            getMemFlags() == CL_MEM_READ_WRITE;
+    }
+
+    bool isReadable() const throw()
+    {
+        return
+            getMemFlags() == CL_MEM_READ_ONLY ||
+            getMemFlags() == CL_MEM_READ_WRITE;
+    }
+
+    bool operator!() const throw()
+    {
+        return
+            !isAllocated() ||
+            !m_env ||
+            !getMemFlags() != 0;
     }
 
 private:
@@ -157,9 +214,10 @@ private:
     {
         m_channels.resize(channelCount);
         for(MyChannels::iterator it = m_channels.begin(); it != m_channels.end(); ++it)
-            (*it).alloc(sampleCount, flags);
+            (*it) = DevSingleChannel<SampleType>(getEnv(), flags, sampleCount);
 
         m_sampleCount = sampleCount;
+        m_memFlags = flags;
     }
 
     void _dealloc()
@@ -167,12 +225,25 @@ private:
         fff_EXPECT_TRUE(
             isAllocated());
         m_channels.clear();
+        m_sampleCount = 0;
+        m_memFlags = 0;
     }
 
     Bool _isAllocated() const throw()
     {
         return
-            getChannelCount() > 0;
+            getChannelCount() > 0 &&
+            getSampleCount() > 0;
+    }
+
+    OpenCLEnvironment &getEnv()
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_env);
+    }
+
+    const OpenCLEnvironment &getEnv() const
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_env);
     }
 
 private:
@@ -184,6 +255,9 @@ private:
 
     UInt
         m_sampleCount;
+
+    cl_mem_flags
+        m_memFlags;
 };
 
 }
