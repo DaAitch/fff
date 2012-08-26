@@ -111,8 +111,9 @@ public:
 
 
     My createSubBuffer(
+        cl_mem_flags flags,
         UInt sampleOffset,
-        UInt sampleCount) const
+        UInt sampleCount)
     {
         fff_RTCLC_ERR_INIT();
 
@@ -223,7 +224,9 @@ public:
 		My &dstBuffer,
 		UInt offsetSrc,
 		UInt offsetDst,
-		UInt sampleCount) const
+		UInt sampleCount,
+        ::cl::Event *evtReal=NULL,
+        ::cl::Event *evtImag=NULL) const
 	{
 		fff_RTCLC_ERR_INIT();
 
@@ -239,7 +242,9 @@ public:
 				    dstBuffer.getReal(),
 				    offsetSrc * sizeof(MySample),
 				    offsetDst * sizeof(MySample),
-				    sampleCount * sizeof(MySample)));
+				    sampleCount * sizeof(MySample),
+                    NULL,
+                    evtReal));
 
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    m_env.getQueue().enqueueCopyBuffer(
@@ -247,12 +252,16 @@ public:
 				    dstBuffer.getImag(),
 				    offsetSrc * sizeof(MySample),
 				    offsetDst * sizeof(MySample),
-				    sampleCount * sizeof(MySample)));
+				    sampleCount * sizeof(MySample),
+                    NULL,
+                    evtImag));
         }
 	}
 
 	void enqueueCopy(
-		My &dstBuffer) const
+		My &dstBuffer,
+        ::cl::Event *evtReal=NULL,
+        ::cl::Event *evtImag=NULL) const
 	{
         fff_EXPECT_VALID_THIS();
         fff_EXPECT_VALID_OBJ(dstBuffer);
@@ -262,13 +271,17 @@ public:
 			dstBuffer,
 			0,
 			0,
-			getSampleCount());
+			getSampleCount(),
+            evtReal,
+            evtImag);
 	}
 
 	void enqueueCopy(
 		My &dstBuffer,
 		UInt offsetDst,
-		UInt sampleCount) const
+		UInt sampleCount,
+        ::cl::Event *evtReal=NULL,
+        ::cl::Event *evtImag=NULL) const
 	{
         fff_EXPECT_VALID_THIS();
         fff_EXPECT_VALID_OBJ(dstBuffer);
@@ -280,7 +293,9 @@ public:
 			dstBuffer,
 			0,
 			offsetDst,
-			sampleCount);
+			sampleCount,
+            evtReal,
+            evtImag);
 	}
 
 	const OpenCLEnvironment &getEnv() const
@@ -422,7 +437,7 @@ private:
 	{
 		m_sampleCount = 0;
         m_memFlags = 0;
-
+        
 		m_re = ::cl::Buffer();
 		m_im = ::cl::Buffer();
 	}

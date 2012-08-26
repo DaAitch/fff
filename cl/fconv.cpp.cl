@@ -232,7 +232,7 @@ void fff_KERNEL_FCONV(
         
 	barrier(
 		CLK_GLOBAL_MEM_FENCE);
-		
+	
 	_fftArrange(
 		x_real,
 		x_imag,

@@ -11,6 +11,8 @@ Global
 		InteractiveTesting|x64 = InteractiveTesting|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
+		RuntimeRelease|Win32 = RuntimeRelease|Win32
+		RuntimeRelease|x64 = RuntimeRelease|x64
 		Test|Win32 = Test|Win32
 		Test|x64 = Test|x64
 	EndGlobalSection
@@ -27,6 +29,10 @@ Global
 		{A2457034-7538-44C4-A291-75616A94BF39}.Release|Win32.Build.0 = Release|Win32
 		{A2457034-7538-44C4-A291-75616A94BF39}.Release|x64.ActiveCfg = Release|x64
 		{A2457034-7538-44C4-A291-75616A94BF39}.Release|x64.Build.0 = Release|x64
+		{A2457034-7538-44C4-A291-75616A94BF39}.RuntimeRelease|Win32.ActiveCfg = RuntimeRelease|Win32
+		{A2457034-7538-44C4-A291-75616A94BF39}.RuntimeRelease|Win32.Build.0 = RuntimeRelease|Win32
+		{A2457034-7538-44C4-A291-75616A94BF39}.RuntimeRelease|x64.ActiveCfg = RuntimeRelease|x64
+		{A2457034-7538-44C4-A291-75616A94BF39}.RuntimeRelease|x64.Build.0 = RuntimeRelease|x64
 		{A2457034-7538-44C4-A291-75616A94BF39}.Test|Win32.ActiveCfg = Test|Win32
 		{A2457034-7538-44C4-A291-75616A94BF39}.Test|Win32.Build.0 = Test|Win32
 		{A2457034-7538-44C4-A291-75616A94BF39}.Test|x64.ActiveCfg = Test|x64

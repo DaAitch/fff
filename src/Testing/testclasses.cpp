@@ -31,7 +31,7 @@
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifdef _TEST
+#ifdef _fff_TEST
 
 //---------------------------------------------------------+
 //! PROJECT INCLUDES
@@ -78,7 +78,11 @@ using namespace fff::Filesystem;
 namespace fff {
 namespace Testing {
 
+// specials
+typedef UbiMultiChannelFactory<Float> mcf;
+
 fff_TEST_BEGIN_IMPL(fff, classes)
+/*
     fff_TEST_CALL(classes, OpenCLEnvironment);
 
     fff_TEST_CALL(classes, Worker);
@@ -94,21 +98,21 @@ fff_TEST_BEGIN_IMPL(fff, classes)
     fff_TEST_CALL(classes, Mapper);
     
     fff_TEST_CALL(classes, DevSingleChannel);
+    fff_TEST_CALL(classes, DevMultiChannel);
 
     fff_TEST_CALL(classes, HostSingleChannel);
     fff_TEST_CALL(classes, HostMultiChannel);
     fff_TEST_CALL(classes, HostMultiChannelPreallocated);
 
-    fff_TEST_CALL(classes, UbiMultiChannelBase);
     fff_TEST_CALL(classes, UbiMultiChannel);
     
     fff_TEST_CALL(classes, Convolution);
     
     fff_TEST_CALL(classes, Transformation);
     fff_TEST_CALL(classes, TransferFunction);
-    
+    */
     fff_TEST_CALL(classes, FastConvolution);
-
+    
 fff_TEST_END_IMPL()
 
 namespace Classes {
@@ -735,20 +739,20 @@ fff_TEST_BEGIN_IMPL(classes, DevSingleChannel)
             InvalidRelationException
         );
 
-        sc4.enqueueCopy(sc3, 200, 200, 0);
-        sc4.enqueueCopy(sc3, 199, 199, 1);
-        sc4.enqueueCopy(sc3, 190, 150, 10);
-        sc4.enqueueCopy(sc3, 150, 190, 10);
-        sc4.enqueueCopy(sc3, 150, 199, 1);
+        sc4.enqueueCopy(sc3, 200, 200, 0, NULL, NULL);
+        sc4.enqueueCopy(sc3, 199, 199, 1, NULL, NULL);
+        sc4.enqueueCopy(sc3, 190, 150, 10, NULL, NULL);
+        sc4.enqueueCopy(sc3, 150, 190, 10, NULL, NULL);
+        sc4.enqueueCopy(sc3, 150, 199, 1, NULL, NULL);
 
         fff_TEST_TRY_CATCH(
-            sc4.enqueueCopy(sc3, 199, 0, 2);
+            sc4.enqueueCopy(sc3, 199, 0, 2, NULL, NULL);
             ,
             InvalidRelationException
         );
 
         fff_TEST_TRY_CATCH(
-            sc4.enqueueCopy(sc3, 198, 199, 2);
+            sc4.enqueueCopy(sc3, 198, 199, 2, NULL, NULL);
             ,
             InvalidRelationException
         );
@@ -774,6 +778,11 @@ fff_TEST_BEGIN_IMPL(classes, DevSingleChannel)
     }
 
 fff_TEST_END_IMPL()
+
+fff_TEST_BEGIN_IMPL(classes, DevMultiChannel)
+    
+fff_TEST_END_IMPL()
+
 
 fff_TEST_BEGIN_IMPL(classes, HostSingleChannel)
 
@@ -831,7 +840,7 @@ fff_TEST_BEGIN_IMPL(classes, HostMultiChannelPreallocated)
         Float *ch[2] = { {c1}, {c2} };
 
         hmcp.alloc(2, 2);
-        hmcp.setPointer(ch, 2);
+        hmcp.setPointer(ch);
         fff_TEST_TRUE(hmcp.isAllocated());
 
         fff_TEST_EQ(hmcp.getRawReal(0)[0], 1.f);
@@ -860,76 +869,68 @@ fff_TEST_BEGIN_IMPL(classes, HostMultiChannelPreallocated)
 
 fff_TEST_END_IMPL()
 
-fff_TEST_BEGIN_IMPL(classes, UbiMultiChannelBase)
+fff_TEST_BEGIN_IMPL(classes, UbiMultiChannel)
 
     {
         OpenCLEnvironment env(CL_DEVICE_TYPE_DEFAULT);
         fff_TEST_OK(env);
 
-        HostMultiChannel<Float> hmc(2, 2);
-        UbiMultiChannelBase<Float> to(env, CL_MEM_READ_WRITE, &hmc, False);
+        mcf::multichannel from, to;
+        mcf::create(to, env, CL_MEM_READ_WRITE, 2, 2);
 
         Float c1[] = {1.f, 2.f};
         Float c2[] = {3.f, 4.f};
         Float *ch[2] = { {c1}, {c2} };
-        HostMultiChannelPreallocated<Float> hmcp;
-        UbiMultiChannelBase<Float> from(env, CL_MEM_READ_WRITE, 2, 2, False);
-        hmcp.alloc(2, 2);
-        hmcp.setPointer(ch, 2);
-        from.setHostMultiChannel(&hmcp);
-        
-        
+        mcf::create(from, env, CL_MEM_READ_WRITE, 2, 2, True);
+        mcf::hmcp *prealloc = (mcf::hmcp *)from.host;
 
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(0)[0], 0.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(0)[1], 0.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(1)[0], 0.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(1)[1], 0.f);
+        prealloc->alloc(2, 100);
+        prealloc->setPointer(ch);
+        (*from).setSampleLength(2);
+        (*to).setSampleLength(2);
+        
+        fff_TEST_EQ(to.host->getRawReal(0)[0], 0.f);
+        fff_TEST_EQ(to.host->getRawReal(0)[1], 0.f);
+        fff_TEST_EQ(to.host->getRawReal(1)[0], 0.f);
+        fff_TEST_EQ(to.host->getRawReal(1)[1], 0.f);
 
         // copy first channel
 
         // copy to device
-        from.enqueueDeviceUpdate(0);
+        (*from).enqueueDeviceUpdate(0);
 
         // copy buffer
-        from[0].enqueueCopy(to[0]);
+        from.dev->getChannel(0).enqueueCopy(to.dev->getChannel(0));
 
         // fetch destination buffer
-        to.enqueueHostUpdate(0);
+        (*to).enqueueHostUpdate();
 
         env.getQueue().finish();
 
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(0)[0], 1.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(0)[1], 2.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(1)[0], 0.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(1)[1], 0.f);
+        fff_TEST_EQ(to.host->getRawReal(0)[0], 1.f);
+        fff_TEST_EQ(to.host->getRawReal(0)[1], 2.f);
+        fff_TEST_EQ(to.host->getRawReal(1)[0], 0.f);
+        fff_TEST_EQ(to.host->getRawReal(1)[1], 0.f);
 
         // copy second channel
 
         // copy to device
-        from.enqueueDeviceUpdate(1);
+        (*from).enqueueDeviceUpdate(1);
 
         // copy buffer
-        from[1].enqueueCopy(to[1]);
+        from.dev->getChannel(1).enqueueCopy(to.dev->getChannel(1));
 
         // fetch destination buffer
-        to.enqueueHostUpdate(1);
+        (*to).enqueueHostUpdate(1);
 
         env.getQueue().finish();
 
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(0)[0], 1.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(0)[1], 2.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(1)[0], 3.f);
-        fff_TEST_EQ(to.getMultiChannel().getRawReal(1)[1], 4.f);
+        fff_TEST_EQ(to.host->getRawReal(0)[0], 1.f);
+        fff_TEST_EQ(to.host->getRawReal(0)[1], 2.f);
+        fff_TEST_EQ(to.host->getRawReal(1)[0], 3.f);
+        fff_TEST_EQ(to.host->getRawReal(1)[1], 4.f);
     }
 
-fff_TEST_END_IMPL()
-
-fff_TEST_BEGIN_IMPL(classes, UbiMultiChannel)
-    {
-        OpenCLEnvironment env(CL_DEVICE_TYPE_DEFAULT);
-        
-        UbiMultiChannel<Float> umc(env, CL_MEM_READ_WRITE, 2, 2, False); 
-    }
 fff_TEST_END_IMPL()
 
 fff_TEST_BEGIN_IMPL(classes, Convolution)
@@ -942,44 +943,47 @@ fff_TEST_BEGIN_IMPL(classes, Convolution)
     fff_TEST_OK(c);
 
     fff_TEST_BEGIN_SECTION("test invalid buffer sample size and channel count")
-        UbiMultiChannel<Float> x1(env, CL_MEM_READ_ONLY, 2, 10, False);
-        UbiMultiChannel<Float> x2(env, CL_MEM_READ_ONLY, 3, 10, False);
+        mcf::multichannel
+            x1, x2, h1, h2, y1, y2, y3;
 
-        UbiMultiChannel<Float> h1(env, CL_MEM_READ_ONLY, 2, 5, False);
-        UbiMultiChannel<Float> h2(env, CL_MEM_READ_ONLY, 3, 5, False);
-
-        UbiMultiChannel<Float> y1(env, CL_MEM_WRITE_ONLY, 2, 14, False);
-        UbiMultiChannel<Float> y2(env, CL_MEM_WRITE_ONLY, 2, 15, False);
-        UbiMultiChannel<Float> y3(env, CL_MEM_WRITE_ONLY, 3, 14, False);
+        mcf::create(x1, env, CL_MEM_READ_ONLY, 2, 10);
+        mcf::create(x2, env, CL_MEM_READ_ONLY, 3, 10);
+        mcf::create(h1, env, CL_MEM_READ_ONLY, 2, 5);
+        mcf::create(h2, env, CL_MEM_READ_ONLY, 3, 5);
+        mcf::create(y1, env, CL_MEM_WRITE_ONLY, 2, 14);
+        mcf::create(y2, env, CL_MEM_WRITE_ONLY, 2, 15);
+        mcf::create(y3, env, CL_MEM_WRITE_ONLY, 3, 14);
 
         fff_TEST_TRY_NOTHROW(
-            Convolution<Float> ck(c, x1, h1, y1);
+            Convolution<Float> ck(c, *x1, *h1, *y1);
             fff_TEST_OK(ck);
             ck.invokeAndWait();
         );
 
         fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, x2, h1, y1);
+            Convolution<Float> ck(c, *x2, *h1, *y1);
+            ck.invokeAndWait();
             ,
             InvalidRelationException
         );
 
         fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, x1, h2, y1);
+            Convolution<Float> ck(c, *x1, *h2, *y1);
+            ck.invokeAndWait();
             ,
             InvalidRelationException
         );
 
         fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, x1, h1, y3);
+            Convolution<Float> ck(c, *x1, *h1, *y3);
+            ck.invokeAndWait();
             ,
             InvalidRelationException
         );
 
-        fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, x1, h1, y2);
-            ,
-            InvalidRelationException
+        fff_TEST_TRY_NOTHROW(
+            Convolution<Float> ck(c, *x1, *h1, *y2);
+            ck.invokeAndWait();
         );
 
     fff_TEST_END_SECTION()
@@ -987,17 +991,23 @@ fff_TEST_BEGIN_IMPL(classes, Convolution)
 
     fff_TEST_BEGIN_SECTION("test buffer accesstypes")
 
-        UbiMultiChannel<Float> xv(env, CL_MEM_READ_ONLY, 2, 100, False);
-        UbiMultiChannel<Float> xw(env, CL_MEM_WRITE_ONLY, 2, 100, False);
-        UbiMultiChannel<Float> xrw(env, CL_MEM_READ_WRITE, 2, 100, False);
+        
+        mcf::multichannel
+            xv, xw, xrw,
+            hv, hw, hrw,
+            yr, yv, yrw;
 
-        UbiMultiChannel<Float> hv(env, CL_MEM_READ_ONLY, 2, 100, False);
-        UbiMultiChannel<Float> hw(env, CL_MEM_WRITE_ONLY, 2, 100, False);
-        UbiMultiChannel<Float> hrw(env, CL_MEM_READ_WRITE, 2, 100, False);
+        mcf::create(xv, env, CL_MEM_READ_ONLY, 2, 100);
+        mcf::create(xw, env, CL_MEM_WRITE_ONLY, 2, 100);
+        mcf::create(xrw, env, CL_MEM_READ_WRITE, 2, 100);
 
-        UbiMultiChannel<Float> yr(env, CL_MEM_READ_ONLY, 2, 199, False);
-        UbiMultiChannel<Float> yv(env, CL_MEM_WRITE_ONLY, 2, 199, False);
-        UbiMultiChannel<Float> yrw(env, CL_MEM_READ_WRITE, 2, 199, False);
+        mcf::create(hv, env, CL_MEM_READ_ONLY, 2, 100);
+        mcf::create(hw, env, CL_MEM_WRITE_ONLY, 2, 100);
+        mcf::create(hrw, env, CL_MEM_READ_WRITE, 2, 100);
+
+        mcf::create(yr, env, CL_MEM_READ_ONLY, 2, 199);
+        mcf::create(yv, env, CL_MEM_WRITE_ONLY, 2, 199);
+        mcf::create(yrw, env, CL_MEM_READ_WRITE, 2, 199);
 
         fff_TEST_OK(xv);
         fff_TEST_OK(xw);
@@ -1012,46 +1022,49 @@ fff_TEST_BEGIN_IMPL(classes, Convolution)
         fff_TEST_OK(yrw);
 
         fff_TEST_TRY_NOTHROW(
-            Convolution<Float> ck(c, xv, hv, yv);
+            Convolution<Float> ck(c, *xv, *hv, *yv);
             fff_TEST_OK(ck);
             ck.invokeAndWait();
         );
 
         fff_TEST_TRY_NOTHROW(
-            Convolution<Float> ck(c, xrw, hv, yv);
+            Convolution<Float> ck(c, *xrw, *hv, *yv);
             fff_TEST_OK(ck);
             ck.invokeAndWait();
         );
 
 
         fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, xw, hv, yv);
+            Convolution<Float> ck(c, *xw, *hv, *yv);
+            ck.invokeAndWait();
             ,
             WrongBoolException
         );
 
 
         fff_TEST_TRY_NOTHROW(
-            Convolution<Float> ck(c, xv, hrw, yv);
+            Convolution<Float> ck(c, *xv, *hrw, *yv);
             fff_TEST_OK(ck);
             ck.invokeAndWait();
         );
 
         fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, xv, hw, yv);
+            Convolution<Float> ck(c, *xv, *hw, *yv);
+            ck.invokeAndWait();
             ,
             WrongBoolException
         )
 
 
         fff_TEST_TRY_NOTHROW(
-            Convolution<Float> ck(c, xrw, hv, yrw);
+            Convolution<Float> ck(c, *xrw, *hv, *yrw);
             fff_TEST_OK(ck);
             ck.invokeAndWait();
         );
 
         fff_TEST_TRY_CATCH(
-            Convolution<Float> ck(c, xw, hv, yr);
+            Convolution<Float> ck(c, *xw, *hv, *yr);
+            ck.invokeAndWait();
             ,
             WrongBoolException
         );
@@ -1059,9 +1072,11 @@ fff_TEST_BEGIN_IMPL(classes, Convolution)
     fff_TEST_END_SECTION()
 
     fff_TEST_BEGIN_SECTION("test values")
-        UbiMultiChannel<Float> x(env, CL_MEM_READ_ONLY, 2, 4, False);
-        UbiMultiChannel<Float> h(env, CL_MEM_READ_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> y(env, CL_MEM_WRITE_ONLY, 2, 5, False);
+        mcf::multichannel x, h, y;
+
+        mcf::create(x, env, CL_MEM_READ_ONLY, 2, 4);
+        mcf::create(h, env, CL_MEM_READ_ONLY, 2, 2);
+        mcf::create(y, env, CL_MEM_WRITE_ONLY, 2, 5);
 
         const Float x0[] = {1,2,3,4};
         const Float h0[] = {1,2};
@@ -1083,23 +1098,23 @@ fff_TEST_BEGIN_IMPL(classes, Convolution)
                       1.f*3.f
         };
 
-        copySamples(x.getHostBuffer().getRawReal(0), x0, 4);
-        copySamples(x.getHostBuffer().getRawReal(1), x1, 4);
+        copySamples(x.host->getRawReal(0), x0, 4);
+        copySamples(x.host->getRawReal(1), x1, 4);
 
-        copySamples(h.getHostBuffer().getRawReal(0), h0, 2);
-        copySamples(h.getHostBuffer().getRawReal(1), h1, 2);
+        copySamples(h.host->getRawReal(0), h0, 2);
+        copySamples(h.host->getRawReal(1), h1, 2);
         
-        Convolution<Float> ck(c, x, h, y);
+        Convolution<Float> ck(c, *x, *h, *y);
         ck.invokeAndWait();
 
         fff_TEST_TRUE(
-            variance(y.getHostBuffer().getRawReal(0), y0, 5)
+            variance(y.host->getRawReal(0), y0, 5)
             ==
             0.f
         );
 
         fff_TEST_TRUE(
-            variance(y.getHostBuffer().getRawReal(1), y1, 5)
+            variance(y.host->getRawReal(1), y1, 5)
             ==
             0.f
         );
@@ -1119,74 +1134,80 @@ fff_TEST_BEGIN_IMPL(classes, Transformation)
     fff_TEST_OK(c);
 
     fff_TEST_BEGIN_SECTION("test invalid input")
-        UbiMultiChannel<Float> vc(env, CL_MEM_READ_WRITE, 2, 2, False);
-        UbiMultiChannel<Float> vs(env, CL_MEM_READ_WRITE, 2, 2, False);
+        mcf::multichannel
+            vc, vs,
+            ic1, ic2,
+            is1, is2,
+            icb, isb;
 
-        UbiMultiChannel<Float> ic1(env, CL_MEM_READ_WRITE, 2, 1, False);
-        UbiMultiChannel<Float> ic2(env, CL_MEM_READ_WRITE, 1, 2, False);
+        mcf::create(vc, env, CL_MEM_READ_WRITE, 2, 2);
+        mcf::create(vs, env, CL_MEM_READ_WRITE, 2, 2);
 
-        UbiMultiChannel<Float> is1(env, CL_MEM_READ_WRITE, 2, 1, False);
-        UbiMultiChannel<Float> is2(env, CL_MEM_READ_WRITE, 1, 2, False);
+        mcf::create(ic1, env, CL_MEM_READ_WRITE, 2, 1);
+        mcf::create(ic2, env, CL_MEM_READ_WRITE, 1, 2);
 
-        UbiMultiChannel<Float> icb(env, CL_MEM_WRITE_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> isb(env, CL_MEM_READ_ONLY, 2, 2, False);
+        mcf::create(is1, env, CL_MEM_READ_WRITE, 2, 1);
+        mcf::create(is2, env, CL_MEM_READ_WRITE, 1, 2);
+
+        mcf::create(icb, env, CL_MEM_WRITE_ONLY, 2, 2);
+        mcf::create(isb, env, CL_MEM_READ_ONLY, 2, 2);
 
         fff_TEST_TRY_NOTHROW(
-            Transformation<Float> ts(c, vc, vs, True);
-            Transformation<Float> tc(c, vc, vs, False);
+            Transformation<Float> ts(c, *vc, *vs, True);
+            Transformation<Float> tc(c, *vc, *vs, False);
         );
 
         fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, ic1, vs, True);
+            Transformation<Float> t(c, *ic1, *vs, True);
             ,
             InvalidRelationException
         );
         fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, ic1, vs, False);
+            Transformation<Float> t(c, *ic1, *vs, False);
             ,
             InvalidRelationException
         );
         fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, ic2, vs, True);
+            Transformation<Float> t(c, *ic2, *vs, True);
             ,
             InvalidRelationException
         );
         fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, ic2, vs, False);
-            ,
-            InvalidRelationException
-        );
-
-
-        fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, vc, is1, True);
-            ,
-            InvalidRelationException
-        );
-        fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, vc, is2, False);
-            ,
-            InvalidRelationException
-        );
-        fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, vc, is1, True);
-            ,
-            InvalidRelationException
-        );
-        fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, vc, is2, False);
+            Transformation<Float> t(c, *ic2, *vs, False);
             ,
             InvalidRelationException
         );
 
 
         fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, vc, isb);
+            Transformation<Float> t(c, *vc, *is1, True);
+            ,
+            InvalidRelationException
+        );
+        fff_TEST_TRY_CATCH(
+            Transformation<Float> t(c, *vc, *is2, False);
+            ,
+            InvalidRelationException
+        );
+        fff_TEST_TRY_CATCH(
+            Transformation<Float> t(c, *vc, *is1, True);
+            ,
+            InvalidRelationException
+        );
+        fff_TEST_TRY_CATCH(
+            Transformation<Float> t(c, *vc, *is2, False);
+            ,
+            InvalidRelationException
+        );
+
+
+        fff_TEST_TRY_CATCH(
+            Transformation<Float> t(c, *vc, *isb);
             ,
             WrongBoolException
         );
         fff_TEST_TRY_CATCH(
-            Transformation<Float> t(c, icb, vs);
+            Transformation<Float> t(c, *icb, *vs);
             ,
             WrongBoolException
         );
@@ -1195,9 +1216,10 @@ fff_TEST_BEGIN_IMPL(classes, Transformation)
     fff_TEST_END_SECTION()
     
     fff_TEST_BEGIN_SECTION("test fft")
+        mcf::multichannel cont, spec;
 
-        UbiMultiChannel<Float> cont(env, CL_MEM_READ_WRITE, 2, 4, False);
-        UbiMultiChannel<Float> spec(env, CL_MEM_READ_WRITE, 2, 4, False);
+        mcf::create(cont, env, CL_MEM_READ_WRITE, 2, 4, False);
+        mcf::create(spec, env, CL_MEM_READ_WRITE, 2, 4, False);
 
         const Float zero[] = {0.f, 0.f, 0.f, 0.f};
 
@@ -1207,43 +1229,43 @@ fff_TEST_BEGIN_IMPL(classes, Transformation)
         const Float x1[] = {1.f, 1.f, 1.f, 1.f};
         const Float X1[] = {1.f, 0.f, 0.f, 0.f};
 
-        copySamples(cont.getHostBuffer().getRawReal(0), x0, 4);
-        copySamples(cont.getHostBuffer().getRawReal(1), x1, 4);
+        copySamples(cont.host->getRawReal(0), x0, 4);
+        copySamples(cont.host->getRawReal(1), x1, 4);
 
         Transformation<Float> tra(
             c,
-            cont,
-            spec,
+            *cont,
+            *spec,
             True);
 
         tra.invokeAndWait();
 
         
 
-        fff_TEST_TRUE(variance(X0, spec.getHostBuffer().getRawReal(0), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, spec.getHostBuffer().getRawImag(0), 4) == 0.f);
+        fff_TEST_TRUE(variance(X0, spec.host->getRawReal(0), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, spec.host->getRawImag(0), 4) == 0.f);
 
-        fff_TEST_TRUE(variance(X1, spec.getHostBuffer().getRawReal(1), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, spec.getHostBuffer().getRawImag(1), 4) == 0.f);
+        fff_TEST_TRUE(variance(X1, spec.host->getRawReal(1), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, spec.host->getRawImag(1), 4) == 0.f);
 
-        cont.getHostBuffer().init();
-        fff_TEST_TRUE(variance(zero, cont.getHostBuffer().getRawReal(0), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, cont.getHostBuffer().getRawImag(0), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, cont.getHostBuffer().getRawReal(1), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, cont.getHostBuffer().getRawImag(1), 4) == 0.f);
+        cont.host->init();
+        fff_TEST_TRUE(variance(zero, cont.host->getRawReal(0), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, cont.host->getRawImag(0), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, cont.host->getRawReal(1), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, cont.host->getRawImag(1), 4) == 0.f);
 
         Transformation<Float> itra(
             c,
-            cont,
-            spec,
+            *cont,
+            *spec,
             False);
 
         itra.invokeAndWait();
 
-        fff_TEST_TRUE(variance(x0, cont.getHostBuffer().getRawReal(0), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, cont.getHostBuffer().getRawImag(0), 4) == 0.f);
-        fff_TEST_TRUE(variance(x1, cont.getHostBuffer().getRawReal(1), 4) == 0.f);
-        fff_TEST_TRUE(variance(zero, cont.getHostBuffer().getRawImag(1), 4) == 0.f);
+        fff_TEST_TRUE(variance(x0, cont.host->getRawReal(0), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, cont.host->getRawImag(0), 4) == 0.f);
+        fff_TEST_TRUE(variance(x1, cont.host->getRawReal(1), 4) == 0.f);
+        fff_TEST_TRUE(variance(zero, cont.host->getRawImag(1), 4) == 0.f);
 
     fff_TEST_END_SECTION()
 
@@ -1258,53 +1280,43 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
     fff_TEST_OK(c);
 
     fff_TEST_BEGIN_SECTION("invalid transfer function input")
-        
-        UbiMultiChannel<Float> vb(env, CL_MEM_READ_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> va(env, CL_MEM_READ_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> vH(env, CL_MEM_READ_WRITE, 2, 2, False);
+        mcf::multichannel
+            vb, va, vH,
+            ib1, ib2,
+            ia1, ia2,
+            iH1, iH2;
 
-        UbiMultiChannel<Float> ib1(env, CL_MEM_READ_ONLY, 1, 2, False);
-        UbiMultiChannel<Float> ib2(env, CL_MEM_READ_ONLY, 2, 1, False);
-        UbiMultiChannel<Float> ia1(env, CL_MEM_READ_ONLY, 1, 2, False);
-        UbiMultiChannel<Float> ia2(env, CL_MEM_READ_ONLY, 2, 1, False);
-        UbiMultiChannel<Float> iH1(env, CL_MEM_READ_WRITE, 1, 2, False);
-        UbiMultiChannel<Float> iH2(env, CL_MEM_READ_WRITE, 2, 1, False);
+        mcf::create(vb, env, CL_MEM_READ_ONLY, 2, 2);
+        mcf::create(va, env, CL_MEM_READ_ONLY, 2, 2);
+        mcf::create(vH, env, CL_MEM_READ_WRITE, 2, 2);
+
+        mcf::create(ib1, env, CL_MEM_READ_ONLY, 1, 2);
+        mcf::create(ib2, env, CL_MEM_READ_ONLY, 2, 1);
+        mcf::create(ia1, env, CL_MEM_READ_ONLY, 1, 2);
+        mcf::create(ia2, env, CL_MEM_READ_ONLY, 2, 1);
+        mcf::create(iH1, env, CL_MEM_READ_WRITE, 1, 2);
+        mcf::create(iH2, env, CL_MEM_READ_WRITE, 2, 1);
 
         fff_TEST_TRY_NOTHROW(
             TransferFunction<Float> t(
                 c,
-                vb,
-                va,
-                vH);
+                *vb,
+                *va,
+                *vH);
 
             fff_TEST_OK(t);
         );
 
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, ib1, va, vH);
+                c, *ib1, *va, *vH);
             fff_TEST_OK(t);
             ,
             InvalidRelationException
         );
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, ib2, va, vH);
-            fff_TEST_OK(t);
-            ,
-            InvalidRelationException
-        );
-
-        fff_TEST_TRY_CATCH(
-            TransferFunction<Float> t(
-                c, vb, ia1, vH);
-            fff_TEST_OK(t);
-            ,
-            InvalidRelationException
-        );
-        fff_TEST_TRY_CATCH(
-            TransferFunction<Float> t(
-                c, vb, ia2, vH);
+                c, *ib2, *va, *vH);
             fff_TEST_OK(t);
             ,
             InvalidRelationException
@@ -1312,28 +1324,45 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
 
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, vb, va, iH1);
+                c, *vb, *ia1, *vH);
             fff_TEST_OK(t);
             ,
             InvalidRelationException
         );
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, vb, va, iH2);
+                c, *vb, *ia2, *vH);
             fff_TEST_OK(t);
             ,
             InvalidRelationException
         );
 
+        fff_TEST_TRY_CATCH(
+            TransferFunction<Float> t(
+                c, *vb, *va, *iH1);
+            fff_TEST_OK(t);
+            ,
+            InvalidRelationException
+        );
+        fff_TEST_TRY_CATCH(
+            TransferFunction<Float> t(
+                c, *vb, *va, *iH2);
+            fff_TEST_OK(t);
+            ,
+            InvalidRelationException
+        );
 
-        UbiMultiChannel<Float> ibb(env, CL_MEM_WRITE_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> iab(env, CL_MEM_WRITE_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> iHb1(env, CL_MEM_READ_ONLY, 2, 2, False);
-        UbiMultiChannel<Float> iHb2(env, CL_MEM_WRITE_ONLY, 2, 2, False);
+        mcf::multichannel
+            ibb, iab, iHb1, iHb2;
+
+        mcf::create(ibb, env, CL_MEM_WRITE_ONLY, 2, 2);
+        mcf::create(iab, env, CL_MEM_WRITE_ONLY, 2, 2);
+        mcf::create(iHb1, env, CL_MEM_READ_ONLY, 2, 2);
+        mcf::create(iHb2, env, CL_MEM_WRITE_ONLY, 2, 2);
 
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, ibb, va, vH);
+                c, *ibb, *va, *vH);
             fff_TEST_OK(t);
             ,
             WrongBoolException
@@ -1341,7 +1370,7 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
 
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, vb, iab, vH);
+                c, *vb, *iab, *vH);
             fff_TEST_OK(t);
             ,
             WrongBoolException
@@ -1349,7 +1378,7 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
 
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, vb, va, iHb1);
+                c, *vb, *va, *iHb1);
             fff_TEST_OK(t);
             ,
             WrongBoolException
@@ -1357,7 +1386,7 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
 
         fff_TEST_TRY_CATCH(
             TransferFunction<Float> t(
-                c, vb, va, iHb2);
+                c, *vb, *va, *iHb2);
             fff_TEST_OK(t);
             ,
             WrongBoolException
@@ -1367,32 +1396,36 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
     fff_TEST_END_SECTION()
 
     fff_TEST_BEGIN_SECTION("transfer function values 1")
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 1, 4, False);
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 1, 4, False);
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 1, 4, False);
+        mcf::multichannel b, a, H;
 
-        TransferFunction<Float> tra(c, b, a, H);
+        mcf::create(b, env, CL_MEM_READ_ONLY, 1, 4);
+        mcf::create(a, env, CL_MEM_READ_ONLY, 1, 4);
+        mcf::create(H, env, CL_MEM_READ_WRITE, 1, 4);
+
+        TransferFunction<Float> tra(c, *b, *a, *H);
 
         const Float b1[] = {1, 0, 0, 0};
         const Float a1[] = {1, 0, 0, 0};
         const Float H1[] = {1, 1, 1, 1};
 
-        copySamples(b.getHostBuffer().getRawReal(0), b1, 4);
-        copySamples(a.getHostBuffer().getRawReal(0), a1, 4);
+        copySamples(b.host->getRawReal(0), b1, 4);
+        copySamples(a.host->getRawReal(0), a1, 4);
 
         tra.invokeAndWait();
 
         fff_EXPECT(
-            variance(H1, H.getHostBuffer().getRawReal(0), 4),
+            variance(H1, H.host->getRawReal(0), 4),
             ==,
             0.f);
 
     fff_TEST_END_SECTION()
 
     fff_TEST_BEGIN_SECTION("transfer function values 2")
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 1, 8, False);
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 1, 8, False);
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 1, 8, False);
+        mcf::multichannel b, a, H;
+
+        mcf::create(b, env, CL_MEM_READ_ONLY, 1, 8);
+        mcf::create(a, env, CL_MEM_READ_ONLY, 1, 8);
+        mcf::create(H, env, CL_MEM_READ_WRITE, 1, 8);
 
         //                  1
         // H = ---------------------------
@@ -1413,10 +1446,10 @@ fff_TEST_BEGIN_IMPL(classes, TransferFunction)
         Float a1[] = {1.f, 0.f, 0.25f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
 
-        copySamples(b.getHostBuffer().getRawReal(0), b1, 8);
-        copySamples(a.getHostBuffer().getRawReal(0), a1, 8);
+        copySamples(b.host->getRawReal(0), b1, 8);
+        copySamples(a.host->getRawReal(0), a1, 8);
 
-        TransferFunction<Float> trans(c, b, a, H);
+        TransferFunction<Float> trans(c, *b, *a, *H);
         fff_TEST_OK(trans);
         trans.invokeAndWait();
 
@@ -1430,97 +1463,59 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
     
     fff_TEST_OK(env);
     fff_TEST_OK(c);
-
+    /*
     fff_TEST_BEGIN_SECTION("invalid Fast Convolution input")
-        UbiMultiChannel<Float> vx(env, CL_MEM_READ_ONLY, 2, 15, False);
-        UbiMultiChannel<Float> ix1(env, CL_MEM_READ_ONLY, 1, 15, False);
-        UbiMultiChannel<Float> ix2(env, CL_MEM_READ_ONLY, 2, 16, False);
 
-        UbiMultiChannel<Float> vy(env, CL_MEM_READ_WRITE, 2, 15, False);
-        UbiMultiChannel<Float> iy1(env, CL_MEM_READ_WRITE, 1, 15, False);
-        UbiMultiChannel<Float> iy2(env, CL_MEM_READ_WRITE, 2, 14, False);
+        mcf::multichannel
+            vH, iH1, iH2;
 
-        UbiMultiChannel<Float> vs(env, CL_MEM_READ_WRITE, 2, 7, False);
-        UbiMultiChannel<Float> is1(env, CL_MEM_READ_WRITE, 1, 7, False);
-        UbiMultiChannel<Float> is2(env, CL_MEM_READ_WRITE, 2, 6, False);
+        mcf::create(vH, env, CL_MEM_READ_ONLY, 2, 32);
+        mcf::create(iH1, env, CL_MEM_READ_ONLY, 1, 32);
+        mcf::create(iH2, env, CL_MEM_READ_ONLY, 2, 31);
 
-        UbiMultiChannel<Float> vH(env, CL_MEM_READ_ONLY, 2, 32, False);
-        UbiMultiChannel<Float> iH1(env, CL_MEM_READ_ONLY, 1, 32, False);
-        UbiMultiChannel<Float> iH2(env, CL_MEM_READ_ONLY, 2, 31, False);
+        HostMultiChannel<Float> x(2, 50), y(2, 50);
 
         fff_TEST_TRY_NOTHROW(
-            FastConvolution<Float> fconv(c, vs, vx, vH, vy, 1);
+            FastConvolution<Float> fconv(c, 7, 15, *vH, 1);
             fff_TEST_OK(fconv);
         );
-        
 
         fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, is1, vx, vH, vy, 1);
+            FastConvolution<Float> fconv(c, 7, 15, *iH1, 1);
+            fconv.invoke(15,x,y);
             ,
-            WrongBoolException
+            InvalidObjectException
         );
 
         fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, is2, vx, vH, vy, 1);
-            ,
-            InvalidRelationException
-        );
-
-        fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, ix1, vH, vy, 1);
-            ,
-            WrongBoolException
-        );
-
-        fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, ix2, vH, vy, 1);
-            ,
-            WrongBoolException
-        );
-
-        fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, vx, iH1, vy, 1);
-            ,
-            WrongBoolException
-        );
-
-        fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, vx, iH2, vy, 1);
+            FastConvolution<Float> fconv(c, 7, 15, *iH2, 1);
+            fconv.invoke(15,x,y);
             ,
             InvalidRelationException
         );
 
-        fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, vx, vH, iy1, 1);
-            ,
-            WrongBoolException
-        );
+        mcf::multichannel iHb;
+        mcf::create(iHb, env, CL_MEM_WRITE_ONLY, 2, 32);
 
         fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, vx, vH, iy2, 1);
-            ,
-            WrongBoolException
-        );
-
-        // only H has to be readable!
-        // other buffers are copied before.
-        UbiMultiChannel<Float> iHb(env, CL_MEM_WRITE_ONLY, 2, 32, False);
-
-        fff_TEST_TRY_CATCH(
-            FastConvolution<Float> fconv(c, vs, vx, iHb, vy, 1);
+            FastConvolution<Float> fconv(c, 7, 15, *iHb, 1);
+            fconv.invoke(15,x,y);
             ,
             WrongBoolException
         );
     fff_TEST_END_SECTION()
-
+    
+    
     fff_TEST_BEGIN_SECTION("fast convolution values")
-        UbiMultiChannel<Float> x(env, CL_MEM_READ_ONLY, 1, 10, False);
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_ONLY, 1, 8, False);
-        UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, 1, 3, False);
-        UbiMultiChannel<Float> y(env, CL_MEM_READ_WRITE, 1, 10, False);
 
-        FastConvolution<Float> fconv(c, s, x, H, y, 0);
-        fff_TEST_OK(fconv);
+        mcf::multichannel H;
+        mcf::create(H, env, CL_MEM_READ_ONLY, 1, 8);
+        HostMultiChannel<Float> x(1, 10);
+        HostMultiChannel<Float> y(1, 10);
+
+        
+
+        //UbiMultiChannelBase<Float> ux(
 
         const Float zero[] = {0,0,0,0,0,0,0,0,0,0};
 
@@ -1531,51 +1526,80 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         const Float t1[] = {11,12,13}; // new state
         const Float y1[] = {4,5,6,7,8,9,10,11,12,13}; // output
 
+        copySamples(H.host->getRawReal(0), H1, 8);
+        (*H).setSampleLength(8);
+
+        FastConvolution<Float> fconv(c, 3, 10, *H, 0);
+        fff_TEST_OK(fconv);
+
         // => [s1,x1] ** h1 = iFFT(FFT([s1,x1]) * H1)
- 
-        copySamples(s.getHostBuffer().getRawReal(0), s1, 3);
-        copySamples(x.getHostBuffer().getRawReal(0), x1, 10);
-        copySamples(H.getHostBuffer().getRawReal(0), H1, 8);
+        mcf::multichannel s;
+        mcf::create(s, fconv.getCurrentIn());
+        (*s).setSampleLength(3);
 
-        fconv.invokeAndWait();
+        copySamples(s.host->getRawReal(0), s1, 3);
+        copySamples(x.getRawReal(0), x1, 10);
+        
 
-        fff_TEST_EQ(
-            variance(t1, s.getHostBuffer().getRawReal(0), 3),
-            0.f);
-
-        //printarray(std::cout, s.getHostBuffer().getRawReal(0), 3);
+        // y is finished, but not "next" the state!
+        fconv.invoke(10, x, y);
 
         // 32bit float aliasing!
         fff_TEST_LT(
-            variance(y1, y.getHostBuffer().getRawReal(0), 10),
+            variance(y1, y.getRawReal(0), 10),
             1.0e-12);
 
-    fff_TEST_END_SECTION()
+        mcf::create(s, fconv.getCurrentIn());
+        (*s).setSampleLength(3);
 
+        (*s).enqueueHostUpdate();
+
+        env.getQueue().finish();
+
+        fff_TEST_EQ(
+            variance(t1, s.host->getRawReal(0), 3),
+            0.f);
+
+        
+
+        
+        
+
+    fff_TEST_END_SECTION()
+    
+    
     fff_TEST_BEGIN_SECTION("Transfer Function + fast convolution integration test")
 
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 1, 8, False);
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 1, 8, False);
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 1, 8, False);
+        mcf::multichannel b, a, H;
+        mcf::create(b, env, CL_MEM_READ_ONLY, 1, 8);
+        mcf::create(a, env, CL_MEM_READ_ONLY, 1, 8);
+        mcf::create(H, env, CL_MEM_READ_WRITE, 1, 8);
+
+        (*b).smartSampleLength();
+        (*a).smartSampleLength();
+        (*H).smartSampleLength();
 
         // M = 3
 
         const Float zeros[] = {1, 0, 0, 0, 0, 0, 0, 0 };
         const Float poles[] = {1, 0,   0,     0, 0, 0, 0, 0 };
 
-        copySamples(b.getHostBuffer().getRawReal(0), zeros, 8);
-        copySamples(a.getHostBuffer().getRawReal(0), poles, 8);
+        copySamples(b.host->getRawReal(0), zeros, 8);
+        copySamples(a.host->getRawReal(0), poles, 8);
 
-        TransferFunction<Float> tra(c, b, a, H);
+        TransferFunction<Float> tra(c, *b, *a, *H);
         fff_TEST_OK(tra);
         tra.invokeAndWait();
 
-        UbiMultiChannel<Float> x(env, CL_MEM_READ_ONLY, 1, 10, False);
-        UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, 1, 2, False);
-        UbiMultiChannel<Float> y(env, CL_MEM_READ_WRITE, 1, 10, False);
+        mcf::multichannel s;
+        HostMultiChannel<Float> x(1, 10);
+        HostMultiChannel<Float> y(1, 10);
 
-        FastConvolution<Float> fconv(c, s, x, H, y, 1);
+        FastConvolution<Float> fconv(c, 2, 10, *H, 1);
         fff_TEST_OK(fconv);
+
+        mcf::create(s, fconv.getCurrentIn());
+        (*s).setSampleLength(2);
 
         const Float zero[] = {0,0,0,0,0,0,0,0,0,0};
 
@@ -1584,14 +1608,16 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         
         const Float t1[] = {16, 8}; // new state
  
-        copySamples(s.getHostBuffer().getRawReal(0), s1, 2);
-        copySamples(x.getHostBuffer().getRawReal(0), x1, 10);
+        copySamples(s.host->getRawReal(0), s1, 2);
+        copySamples(x.getRawReal(0), x1, 10);
 
-        fconv.invokeAndWait();
+        (*s).enqueueDeviceUpdate();
+
+        fconv.invoke(10, x, y);
 
         // input is output, since h is the dirac impulse
         fff_TEST_LT(
-            variance(y.getHostBuffer().getRawReal(0), x1, 10),
+            variance(y.getRawReal(0), x1, 10),
             1.0e-12f);
 
 
@@ -1608,51 +1634,44 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         DeviceProperties devprops(env.getDevice());
         Mapper map(cd, devprops, f);
 
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 1, fff_POW2(map.getLb2N()));
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 1, fff_POW2(map.getLb2N()));
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 1, fff_POW2(map.getLb2N()));
+        mcf::multichannel b, a, H;
 
-        a.getHostBuffer().getRawReal(0)[0] = 1.f;
-        b.getHostBuffer().getRawReal(0)[0] = 1.f;
+        mcf::create(b, env, CL_MEM_READ_ONLY, 1, fff_POW2(map.getLb2N()));
+        mcf::create(a, env, CL_MEM_READ_ONLY, 1, fff_POW2(map.getLb2N()));
+        mcf::create(H, env, CL_MEM_READ_WRITE, 1, fff_POW2(map.getLb2N()));
 
-        TransferFunction<Float> tra(c, b, a, H);
+        a.host->getRawReal(0)[0] = 1.f;
+        b.host->getRawReal(0)[0] = 1.f;
+
+        TransferFunction<Float> tra(c, *b, *a, *H);
 
         tra.invokeAndWait();
 
-        UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, 1, M-1);
-        UbiMultiChannel<Float> x(env, CL_MEM_READ_ONLY, 1, N);
-        UbiMultiChannel<Float> y(env, CL_MEM_READ_WRITE, 1, N);
+        HostMultiChannel<Float> x(1, N);
+        HostMultiChannel<Float> y(1, N);
 
         Float *xv = new Float[N];
         for(UInt i = 0; i < N; ++i)
             xv[i] = 1.f/(Float)(i+1);
 
-        copySamples(x.getHostBuffer().getRawReal(0), xv, N);
+        copySamples(x.getRawReal(0), xv, N);
 
         FastConvolution<Float> fconv(
             c,
-            s,
-            x,
-            H,
-            y,
+            M-1,
+            N,
+            *H,
             f);
-        fconv.invokeAndWait();
-        /*
-        for(UInt i = 0; i < N; ++i)
-            fff_EXPECT(
-                fabs(y.getHostBuffer().getRawReal(0)[i]-xv[i]),
-                <,
-                0.02f);
-        */
+        fconv.invoke(N, x, y);
 
         fff_TEST_LT(
-            variance(y.getHostBuffer().getRawReal(0), xv, N),
+            variance(y.getRawReal(0), xv, N),
             1.0e-12f);
 
         delete [] xv;
 
     fff_TEST_END_SECTION()
-    
+    */
     /*
     fff_TEST_BEGIN_SECTION("testing huge ir")
         
@@ -1722,29 +1741,34 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
 
     fff_TEST_END_SECTION()
     */
-    
+    /*
     fff_TEST_BEGIN_SECTION("preallocated test")
-
+        mcf::multichannel b, a, H;
         
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 1, 8);
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 1, 8);
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 1, 8);
+        mcf::create(b, env, CL_MEM_READ_ONLY, 1, 8);
+        mcf::create(a, env, CL_MEM_READ_ONLY, 1, 8);
+        mcf::create(H, env, CL_MEM_READ_WRITE, 1, 8);
+
+        (*b).smartSampleLength();
+        (*a).smartSampleLength();
+        (*H).smartSampleLength();
 
         // M = 3
 
         const Float zeros[] = {1, 0, 0, 0, 0, 0, 0, 0 };
         const Float poles[] = {1, 0, 0, 0, 0, 0, 0, 0 };
 
-        copySamples(b.getHostBuffer().getRawReal(0), zeros, 8);
-        copySamples(a.getHostBuffer().getRawReal(0), poles, 8);
+        copySamples(b.host->getRawReal(0), zeros, 8);
+        copySamples(a.host->getRawReal(0), poles, 8);
 
-        TransferFunction<Float> tra(c, b, a, H);
+        TransferFunction<Float> tra(c, *b, *a, *H);
         fff_TEST_OK(tra);
         tra.invokeAndWait();
         
-        UbiMultiChannelPreallocated<Float> x(env, CL_MEM_READ_ONLY);
-        UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, 1, 2, False);
-        UbiMultiChannelPreallocated<Float> y(env, CL_MEM_READ_WRITE);
+        
+
+        HostMultiChannelPreallocated<Float> x, y;
+        
 
         // input samples
         Float x1[] = {1,2,3,4,5,6,7,8,9,10};
@@ -1767,14 +1791,15 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         yp1[0] = y1;
         yp2[0] = y2;
 
-        // set pseudo max size to
-        // allow initialization of the input buffer
-        // INPUT = [STATE; X]
-        x.allocMax(1, 100);
-        y.allocMax(1, 100);
+        x.alloc(1, 100);
+        y.alloc(1, 100);
 
-        FastConvolution<Float> fconv(c, s, x, H, y, 1);
+        FastConvolution<Float> fconv(c, 2, 10, *H, 1);
         fff_TEST_OK(fconv);
+
+        mcf::multichannel s;
+
+        
 
         // VST starts computation
 
@@ -1782,16 +1807,14 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         // and wants the fconv in yp1
         
         // first process call
-        x.setTarget(xp1, 10);
-        y.setTarget(yp1, 10);
-        fconv.invoke();
+        x.setPointer(xp1);
+        y.setPointer(yp1);
+        fconv.invoke(10, x, y);
 
         // second process call
-        x.setTarget(xp2, 5);
-        y.setTarget(yp2, 5);
-        fconv.invoke();
-
-        fconv.wait();
+        x.setPointer(xp2);
+        y.setPointer(yp2);
+        fconv.invoke(5, x, y);
 
         fff_TEST_LT(
             variance(yp1[0], x1, 10),
@@ -1801,8 +1824,14 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
             variance(yp2[0], x2, 5),
             1.0e-12f);
 
+        mcf::create(s, fconv.getCurrentIn());
+        (*s).setSampleLength(2);
+        (*s).enqueueHostUpdate();
+
+        env.getQueue().finish();
+
         fff_TEST_EQ(
-            variance(s.getHostBuffer().getRawReal(0), t2, 2),
+            variance(s.host->getRawReal(0), t2, 2),
             0.f);
 
         // ...
@@ -1813,7 +1842,7 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         delete [] yp2;
 
     fff_TEST_END_SECTION()
-
+    
     fff_TEST_BEGIN_SECTION("N>M N=M N<M tests")
         
 
@@ -1934,6 +1963,7 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
             pseudoM[pseudoCount] = { 3,  477,  4109},
             pseudoThroughputs[pseudoCount] = { 0, 7, 11 };
 
+        for(UInt stopWatch = 0; stopWatch <= 1; ++stopWatch)
         for(UInt i = 0; i < pseudoCount; ++i)
         {
             const UInt
@@ -1944,213 +1974,276 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
             const UInt pH = cl::multiple2In(pM);
 
             // std::cout << std::endl << "  pX=" << pX << ", pM=" << pM << ", pH=" << pH << ", pT=" << pT << std::endl;
+            mcf::multichannel b, a, H;
 
-            UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, 2, pH);
-            UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, 2, pH);
-            UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, 2, pH);
-
+            mcf::create(b, env, CL_MEM_READ_ONLY, 2, pH);
+            mcf::create(a, env, CL_MEM_READ_ONLY, 2, pH);
+            mcf::create(H, env, CL_MEM_READ_WRITE, 2, pH);
+            
             // poles
-            a.getHostBuffer().getRawReal(0)[0] = 1.f;
-            a.getHostBuffer().getRawReal(1)[0] = 1.f;
+            a.host->getRawReal(0)[0] = 1.f;
+            a.host->getRawReal(1)[0] = 1.f;
 
             // copy zeros
-            copySamples(b.getHostBuffer().getRawReal(0), bs0, M);
-            copySamples(b.getHostBuffer().getRawReal(1), bs1, M);
+            copySamples(b.host->getRawReal(0), bs0, M);
+            copySamples(b.host->getRawReal(1), bs1, M);
 
-            TransferFunction<Float> tra(c, b, a, H);
+            TransferFunction<Float> tra(c, *b, *a, *H);
             tra.invokeAndWait();
 
-            UbiMultiChannelPreallocated<Float> x(env, CL_MEM_READ_ONLY);
-            UbiMultiChannelPreallocated<Float> y(env, CL_MEM_READ_WRITE);
-            UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, 2, M-1);
+            HostMultiChannelPreallocated<Float> x, y;
 
-            x.allocMax(2, pX);
-            y.allocMax(2, pX);
+            x.alloc(2, pX<<1);
+            y.alloc(2, pX<<1);
 
             Vector<Float> zeros(pX);
 
-            FastConvolution<Float> fconv(c, s, x, H, y, pT);
+            FastConvolution<Float> fconv(c, M-1, pX<<1, *H, pT);
+
+            mcf::multichannel s;
+            
+            mcf::create(s, fconv.getCurrentIn());
+            (*s).setSampleLength(M-1);
+            (*s).enqueueDeviceUpdate();
 
             // round 0x ---------------------------------------------+
-            x.setTarget(x0, in0);
-            y.setTarget(y0, in0);
-            fconv.invokeAndWait();
+            hrt t0;
 
-            // channel 0 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(0), ss00, M-1),
-                1.0e-12f);
+            x.setPointer(x0);
+            y.setPointer(y0);
+            fconv.invoke(in0, x, y);
+            t0.stop();
 
-            // channel 0 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(0), zeros.getSamples(), M-1),
-                1.0e-12f);
+            if(!stopWatch)
+            {
+                // channel 0 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(0), ys00, in0),
+                    1.0e-12f);
 
-            // channel 1 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(1), ss01, M-1),
-                1.0e-12f);
+                // channel 0 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(0), zeros.getSamples(), in0),
+                    1.0e-12f);
 
-            // channel 1 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(1), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 1 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(1), ys01, in0),
+                    1.0e-12f);
 
-            // channel 0 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(0), ys00, in0),
-                1.0e-12f);
+                // channel 1 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(1), zeros.getSamples(), in0),
+                    1.0e-12f);
 
-            // channel 0 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(0), zeros.getSamples(), in0),
-                1.0e-12f);
+                mcf::create(s, fconv.getCurrentIn());
+                (*s).setSampleLength(M-1);
+                (*s).enqueueHostUpdate();
+                env.getQueue().finish();
 
-            // channel 1 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(1), ys01, in0),
-                1.0e-12f);
+                // channel 0 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(0), ss00, M-1),
+                    1.0e-12f);
 
-            // channel 1 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(1), zeros.getSamples(), in0),
-                1.0e-12f);
+                // channel 0 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(0), zeros.getSamples(), M-1),
+                    1.0e-12f);
+
+                // channel 1 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(1), ss01, M-1),
+                    1.0e-12f);
+
+                // channel 1 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(1), zeros.getSamples(), M-1),
+                    1.0e-12f);
+            }
 
             // round 1x ---------------------------------------------+
-            x.setTarget(x1, in1);
-            y.setTarget(y1, in1);
-            fconv.invokeAndWait();
+            hrt t1;
+            x.setPointer(x1);
+            y.setPointer(y1);
+            fconv.invoke(in1, x, y);
+            t1.stop();
 
-            // channel 0 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(0), ss10, M-1),
-                1.0e-12f);
+            if(!stopWatch)
+            {
 
-            // channel 0 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(0), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 0 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(0), ys10, in1),
+                    1.0e-12f);
 
-            // channel 1 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(1), ss11, M-1),
-                1.0e-12f);
+                // channel 0 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(0), zeros.getSamples(), in1),
+                    1.0e-12f);
 
-            // channel 1 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(1), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 1 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(1), ys11, in1),
+                    1.0e-12f);
 
-            // channel 0 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(0), ys10, in1),
-                1.0e-12f);
+                // channel 1 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(1), zeros.getSamples(), in1),
+                    1.0e-12f);
 
-            // channel 0 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(0), zeros.getSamples(), in1),
-                1.0e-12f);
+                mcf::create(s, fconv.getCurrentIn());
+                (*s).setSampleLength(M-1);
+                (*s).enqueueHostUpdate();
+                env.getQueue().finish();
 
-            // channel 1 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(1), ys11, in1),
-                1.0e-12f);
+                // channel 0 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(0), ss10, M-1),
+                    1.0e-12f);
 
-            // channel 1 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(1), zeros.getSamples(), in1),
-                1.0e-12f);
+                // channel 0 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(0), zeros.getSamples(), M-1),
+                    1.0e-12f);
 
+                // channel 1 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(1), ss11, M-1),
+                    1.0e-12f);
+
+                // channel 1 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(1), zeros.getSamples(), M-1),
+                    1.0e-12f);
+
+            
+            }
 
             // round 2x ---------------------------------------------+
-            x.setTarget(x2, in2);
-            y.setTarget(y2, in2);
-            fconv.invokeAndWait();
+            hrt t2;
+            x.setPointer(x2);
+            y.setPointer(y2);
+            fconv.invoke(in2, x, y);
+            t2.stop();
 
-            // channel 0 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(0), ss20, M-1),
-                1.0e-12f);
+            if(!stopWatch)
+            {
 
-            // channel 0 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(0), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 0 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(0), ys20, in2),
+                    1.0e-12f);
 
-            // channel 1 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(1), ss21, M-1),
-                1.0e-12f);
+                // channel 0 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(0), zeros.getSamples(), in2),
+                    1.0e-12f);
 
-            // channel 1 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(1), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 1 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(1), ys21, in2),
+                    1.0e-12f);
 
-            // channel 0 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(0), ys20, in2),
-                1.0e-12f);
+                // channel 1 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(1), zeros.getSamples(), in2),
+                    1.0e-12f);
 
-            // channel 0 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(0), zeros.getSamples(), in2),
-                1.0e-12f);
+                mcf::create(s, fconv.getCurrentIn());
+                (*s).setSampleLength(M-1);
+                (*s).enqueueHostUpdate();
+                env.getQueue().finish();
 
-            // channel 1 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(1), ys21, in2),
-                1.0e-12f);
+                // channel 0 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(0), ss20, M-1),
+                    1.0e-12f);
 
-            // channel 1 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(1), zeros.getSamples(), in2),
-                1.0e-12f);
+                // channel 0 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(0), zeros.getSamples(), M-1),
+                    1.0e-12f);
+
+                // channel 1 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(1), ss21, M-1),
+                    1.0e-12f);
+
+                // channel 1 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(1), zeros.getSamples(), M-1),
+                    1.0e-12f);
+            }
 
             // round 3x ---------------------------------------------+
-            x.setTarget(x3, in3);
-            y.setTarget(y3, in3);
-            fconv.invokeAndWait();
+            hrt t3;
+            x.setPointer(x3);
+            y.setPointer(y3);
+            fconv.invoke(in3, x, y);
+            t3.stop();
 
-            // channel 0 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(0), ss30, M-1),
-                1.0e-12f);
+            if(!stopWatch)
+            {
 
-            // channel 0 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(0), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 0 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(0), ys30, in3),
+                    1.0e-12f);
 
-            // channel 1 state real
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawReal(1), ss31, M-1),
-                1.0e-12f);
+                // channel 0 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(0), zeros.getSamples(), in3),
+                    1.0e-12f);
 
-            // channel 1 state imag (expect zeros)
-            fff_TEST_LTE(
-                variance(s.getHostBuffer().getRawImag(1), zeros.getSamples(), M-1),
-                1.0e-12f);
+                // channel 1 y real
+                fff_TEST_LTE(
+                    variance(y.getRawReal(1), ys31, in3),
+                    1.0e-12f);
 
-            // channel 0 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(0), ys30, in3),
-                1.0e-12f);
+                // channel 1 y imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(y.getRawImag(1), zeros.getSamples(), in3),
+                    1.0e-12f);
 
-            // channel 0 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(0), zeros.getSamples(), in3),
-                1.0e-12f);
+                mcf::create(s, fconv.getCurrentIn());
+                (*s).setSampleLength(M-1);
+                (*s).enqueueHostUpdate();
+                env.getQueue().finish();
 
-            // channel 1 y real
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawReal(1), ys31, in3),
-                1.0e-12f);
+                // channel 0 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(0), ss30, M-1),
+                    1.0e-12f);
 
-            // channel 1 y imag (expect zeros)
-            fff_TEST_LTE(
-                variance(y.getHostBuffer().getRawImag(1), zeros.getSamples(), in3),
-                1.0e-12f);
+                // channel 0 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(0), zeros.getSamples(), M-1),
+                    1.0e-12f);
+
+                // channel 1 state real
+                fff_TEST_LTE(
+                    variance(s.host->getRawReal(1), ss31, M-1),
+                    1.0e-12f);
+
+                // channel 1 state imag (expect zeros)
+                fff_TEST_LTE(
+                    variance(s.host->getRawImag(1), zeros.getSamples(), M-1),
+                    1.0e-12f);
+            }
+
+            
+            if(stopWatch)
+            {
+                fff_TESTINGSTREAM("mesurements");
+                ~(fff_TESTINGSTREAM >> "H" << H.host->getSampleCount() << " samples");
+                ~(fff_TESTINGSTREAM >> "round 0" << t0.micros() << " us");
+                ~(fff_TESTINGSTREAM >> "round 1" << t1.micros() << " us");
+                ~(fff_TESTINGSTREAM >> "round 2" << t2.micros() << " us");
+                ~(fff_TESTINGSTREAM >> "round 3" << t3.micros() << " us");
+                fff_TESTINGSTREAM();
+            }
+            
         
         }
 
@@ -2172,6 +2265,200 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         delete [] y3[1];
         delete [] y3;
 
+
+    fff_TEST_END_SECTION()
+    */
+    fff_TEST_BEGIN_SECTION("hardcore test: default vs. unrolled/cpu vs. gpu")
+        // values do not matter!
+        // remember EXPECT overhead is
+
+        OpenCLEnvironment env1(CL_DEVICE_TYPE_CPU);
+        OpenCLEnvironment env2(CL_DEVICE_TYPE_GPU);
+
+        Compiler c1(env1, Compiler::CL_LOCATION, Worker(), Unroll());
+        Compiler c2(env1, Compiler::CL_LOCATION, Worker(), Unroll(True));
+        Compiler c3(env2, Compiler::CL_LOCATION, Worker(), Unroll());
+        Compiler c4(env2, Compiler::CL_LOCATION, Worker(), Unroll(True));
+
+        c1.build();
+        c2.build();
+        c3.build();
+        c4.build();
+        fff_TEST_OK(c1);
+        fff_TEST_OK(c2);
+        fff_TEST_OK(c3);
+        fff_TEST_OK(c4);
+
+        ofstream lf("hardcoretest.csv");
+
+        lf
+        << "\"#\";"
+        << "\"Compiler Type\";"
+        << "\"Device Type\";"
+        << "\"Sample Rate\";"
+        << "\"IR Time\";"
+        << "\"Kernel Size\";"
+        << "\"H Size\";"
+        << "\"In/Out Size\";"
+        << "\"f\";"
+        << "\"Buffer Size\";"
+        << "\"Fast Conv Duration\";"
+        << "\"Duration\";"
+        << "\"Fast Conv Throughput Rate\";"
+        << "\"Throughput Rate\";"
+        << "\"Fast Conv Realtime\";"
+        << "\"Realtime\";"
+        << std::endl;
+
+        const UInt
+            compilers = 4,
+            times = 4,
+            rates = 2,
+            xs = 6,
+            fs = 2;
+
+
+        Compiler *compiler[compilers] = {&c1,&c2,&c3,&c4};
+        const UInt time[times] = {1, 5, 10, 20};
+        const UInt rate[rates] = {44100, 48000};
+        const UInt x[xs] = {10, 100, 1000, 10000, 100000, 100000};
+        const UInt f[fs] = {0}; // throughput
+
+        const UInt tests = compilers * times * rates * xs * fs;
+
+        UInt testcounter = 0;
+
+        for(UInt ccompiler = 0; ccompiler < compilers; ++ccompiler)
+        for(UInt ctime = 0; ctime < times; ++ctime)
+        for(UInt crate = 0; crate < rates; ++crate)
+        for(UInt cx = 0; cx < xs; ++cx)
+        for(UInt cf = 0; cf < fs; ++cf)
+        {
+            ++testcounter;
+
+            Compiler *useCompiler = compiler[ccompiler];
+            const UInt useTime = time[ctime];
+            const UInt useRate = rate[crate];
+            const UInt useX = x[cx];
+            const UInt useF = f[cf];
+            const UInt useM = useTime * useRate;
+
+            ComputingData<Float> cd(useM);
+            DeviceProperties devprops(useCompiler->getEnv().getDevice());
+            Mapper map(cd, devprops, useF);
+            UInt overlapSize = cl::calcOverlapSaveSampleCount(useX, map.getLb2N(), useM);
+
+            UInt bufSize = // in bytes
+            2 * ( // stereo
+                  2*(useM+useX) // dual input (for not overlapping)
+                + 2*overlapSize // for fft and ifft arranging
+                + useX          // output
+                + fff_POW2(map.getLb2N()) // H
+            )
+            * sizeof(Float);
+            
+            
+            String compilerType(useCompiler->getUnroll().isUnrolled()?"unrolled":"default");
+            String deviceType((useCompiler->getEnv().isCPU()?"CPU":(useCompiler->getEnv().isGPU()?"GPU":"Unknown")));
+            UInt HSize = fff_POW2(map.getLb2N());
+            UInt bufferSize = (UInt)((Float)bufSize/1024.f/1024.f);
+
+            fff_TESTINGSTREAM("Test case");
+            ~(fff_TESTINGSTREAM >> "#" << testcounter << "/" << tests);
+            ~(fff_TESTINGSTREAM >> "compiler" << compilerType);
+            ~(fff_TESTINGSTREAM >> "device" << deviceType);
+            ~(fff_TESTINGSTREAM >> "rate" << useRate << " Hz");
+            ~(fff_TESTINGSTREAM >> "time" << useTime << " s");
+            ~(fff_TESTINGSTREAM >> "M" << useM << " samples");
+            ~(fff_TESTINGSTREAM >> "H" << HSize << " samples");
+            ~(fff_TESTINGSTREAM >> "x, y" << useX << " samples");
+            ~(fff_TESTINGSTREAM >> "f" << useF << "");
+            ~(fff_TESTINGSTREAM >> "~buffer size" << bufferSize << " MiB");
+                
+            if(bufSize < devprops.getGlobalMemorySize())
+            {
+                ~(fff_TESTINGSTREAM >> "start");
+                mcf::multichannel H;
+                mcf::create(H, useCompiler->getEnv(), CL_MEM_READ_ONLY, 2, fff_POW2(map.getLb2N()));
+                initSamples(H.host->getRawReal(0), H.host->getSampleCount(), 1.f);
+                initSamples(H.host->getRawReal(1), H.host->getSampleCount(), 1.f);
+                (*H).smartSampleLength();
+
+                HostMultiChannel<Float> x(2, useX), y(2, useX);
+
+                UInt fmicros, micros;
+
+                // fast conv
+                {
+                    FastConvolution<Float> fconv(*useCompiler, useM-1, useX, *H, useF);
+
+                    hrt t;
+                    fconv.invoke(useX, x, y);
+                    t.stop();
+
+                    fmicros = (UInt)t.micros();
+                }
+
+                {
+                    DevMultiChannel<Float> dx(useCompiler->getEnv(), CL_MEM_READ_ONLY, x.getChannelCount(), x.getSampleCount());
+                    DevMultiChannel<Float> dy(useCompiler->getEnv(), CL_MEM_WRITE_ONLY, x.getChannelCount(), x.getSampleCount() + useM-1);
+                    DevMultiChannel<Float> dh(useCompiler->getEnv(), CL_MEM_READ_ONLY, x.getChannelCount(), useM);
+
+                    mcf::multichannel mx, my, mh;
+                    mcf::create(mx, dx);
+                    mcf::create(mh, dh);
+                    mcf::create(my, dy);
+
+                    (*mx).smartSampleLength();
+                    (*mh).smartSampleLength();
+                    (*my).smartSampleLength();
+
+                    Convolution<Float> conv(*useCompiler, *mx, *mh, *my);
+                    hrt t;
+                    conv.invokeAndWait();
+                    t.stop();
+
+                    micros = (UInt)t.micros();
+                }
+
+                UInt fconvThroughputRate = (UInt)((Float)useX*1000000.f/(Float)fmicros);
+                UInt convThroughputRate = (UInt)((Float)useX*1000000.f/(Float)micros);
+                String fconvRealTime((((Float)useX/(Float)useRate) * 1000000.f >= (Float)fmicros)?"yes":"no");
+                String convRealTime((((Float)useX/(Float)useRate) * 1000000.f >= (Float)micros)?"yes":"no");
+                
+                ~(fff_TESTINGSTREAM >> "fconv runtime" << fmicros << " us");
+                ~(fff_TESTINGSTREAM >> "fconv throughput rate" << fconvThroughputRate << " samples/s");
+                ~(fff_TESTINGSTREAM >> "fconv realtime" << fconvRealTime);
+
+                ~(fff_TESTINGSTREAM >> "conv runtime" << micros << " us");
+                ~(fff_TESTINGSTREAM >> "conv throughput rate" << convThroughputRate << " samples/s");
+                ~(fff_TESTINGSTREAM >> "conv realtime" << convRealTime);
+
+                lf
+                << testcounter << ";"
+                << compilerType << ";"
+                << deviceType << ";"
+                << useRate << ";"
+                << useTime << ";"
+                << useM << ";"
+                << HSize << ";"
+                << useX << ";"
+                << useF << ";"
+                << bufferSize << ";"
+                << fmicros << ";"
+                << micros << ";"
+                << fconvThroughputRate << ";"
+                << convThroughputRate << ";"
+                << fconvRealTime << ";" 
+                << convRealTime << std::endl;
+            }
+            else
+            {
+                ~(fff_TESTINGSTREAM >> "buffer too big");
+            }
+
+            fff_TESTINGSTREAM();
+        }
 
     fff_TEST_END_SECTION()
     

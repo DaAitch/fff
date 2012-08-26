@@ -22,7 +22,7 @@ public:
     typedef DevMultiChannel<SampleType> My;
     typedef std::vector<DevSingleChannel<SampleType> > MyChannels;
 
-private:
+public:
     DevMultiChannel()
         :
         m_sampleCount(0),
@@ -30,21 +30,21 @@ private:
     {
     }
 
-public:
     DevMultiChannel(
         const OpenCLEnvironment &env,
+        cl_mem_flags flags,
         UInt channelCount,
-        UInt sampleCount,
-        cl_mem_flags flags)
+        UInt sampleCount
+        )
         :
         m_env(env),
         m_sampleCount(0),
         m_memFlags(0)
     {
         alloc(
+            flags,
             channelCount,
-            sampleCount,
-            flags);
+            sampleCount);
     }
 
     DevMultiChannel(
@@ -57,9 +57,10 @@ public:
     }
 
     My createSubBuffer(
+        cl_mem_flags flags,
         UInt sampleOffset,
-        UInt sampleCount,
-        cl_mem_flags flags)
+        UInt sampleCount
+        )
     {
         My mch;
 
@@ -67,13 +68,14 @@ public:
 
         for(
             UInt channel = 0;
-            channel < getChannelCount()
+            channel < getChannelCount();
             ++channel)
         {
-            m_channels[channel] = fff_ME[channel].createSubBuffer(
+            mch.m_channels[channel] = fff_ME[channel].createSubBuffer(
+                flags,
                 sampleOffset,
-                sampleCount,
-                flags);
+                sampleCount
+                );
         }
 
         mch.m_env = getEnv();
@@ -198,6 +200,16 @@ public:
             getMemFlags() == CL_MEM_READ_WRITE;
     }
 
+    OpenCLEnvironment &getEnv()
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_env);
+    }
+
+    const OpenCLEnvironment &getEnv() const
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_env);
+    }
+
     bool operator!() const throw()
     {
         return
@@ -236,15 +248,7 @@ private:
             getSampleCount() > 0;
     }
 
-    OpenCLEnvironment &getEnv()
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_env);
-    }
-
-    const OpenCLEnvironment &getEnv() const
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_env);
-    }
+    
 
 private:
     OpenCLEnvironment

@@ -233,13 +233,13 @@
     <ClInclude Include="include\_intern\logstream.h">
       <Filter>code\intern</Filter>
     </ClInclude>
-    <ClInclude Include="include\Buffer\Complex\Ubiquitous\IUbiMultiChannel.h">
-      <Filter>code</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelPreallocated.h">
-      <Filter>code</Filter>
-    </ClInclude>
     <ClInclude Include="include\Buffer\Complex\Device\DevMultiChannel.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Computing\Events.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelFactory.h">
       <Filter>code</Filter>
     </ClInclude>
   </ItemGroup>

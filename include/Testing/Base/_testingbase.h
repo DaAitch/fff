@@ -30,7 +30,7 @@
 //!	\brief		Base macros and functions for testing.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
-#ifdef _TEST
+#ifdef _fff_TEST
 
 #ifndef ___testingbase_h__included__
 #define ___testingbase_h__included__
@@ -55,8 +55,6 @@
 using namespace std;
 using namespace fff::_Intern;
 //---------------------------------------------------------+
-
-#ifdef _TEST
 
 int main();
 
@@ -254,7 +252,5 @@ void testassert(
 
 #endif
 
-
-#endif
 
 #endif

@@ -103,11 +103,58 @@ SampleType variance(
 template<
     class T
 >
+void initSamples(
+    T *arr,
+    unsigned int n,
+    T v=(T)0)
+{
+    while(n--)
+        arr[n]=v;
+}
+
+template<
+    class T
+>
 void printarray(ostream &out, const T *arr, unsigned int n, const char *sep="\n")
 {
     for(unsigned int i=0;i<n;++i)
         out << arr[i] << sep;
 }
+
+// high resolution timer for windows!
+class hrt
+{
+private:
+    LARGE_INTEGER m_start; // res
+    LARGE_INTEGER m_stop;  // res
+
+    BOOL m_valid;
+
+public:
+    hrt()
+    {
+        m_stop.QuadPart = 0;
+        m_valid = QueryPerformanceCounter(&m_start);
+    }
+
+    void stop()
+    {
+        m_valid &= QueryPerformanceCounter(&m_stop);
+    }
+
+    long long micros()
+    {
+        LARGE_INTEGER freq;
+        m_valid &= QueryPerformanceFrequency(&freq); // res/s
+        if(!m_valid)
+            return -1;
+        else
+            return
+                // 1m [µs/s] * start [res] / freq [res/s]
+                // => 1m * start / freq [µs/s*s*res/res)]
+                (1000000 * (m_stop.QuadPart-m_start.QuadPart)) / freq.QuadPart;
+    }
+};
 
 #endif
 

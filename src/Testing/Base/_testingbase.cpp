@@ -31,7 +31,7 @@
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifdef _TEST
+#ifdef _fff_TEST
 
 //---------------------------------------------------------+
 //! PROJECT INCLUDES
@@ -61,18 +61,6 @@ using namespace fff::Testing::OpenCLC99;
 using namespace fff::Testing::Base;
 //---------------------------------------------------------+
 
-
-/*
-    void fffExceptionHandler(
-        const fff::_Intern::Exception &e)
-    {
-        testassert(
-            false,
-            e.getFile().c_str(),
-            e.getLine(),
-            e.exception().c_str());
-    }
-    */
 	int main()
 	{
         try
@@ -126,6 +114,8 @@ using namespace fff::Testing::Base;
                 0,
                 "Unknown exception");
         }
+
+        _CrtDumpMemoryLeaks();
 
         #ifdef _fff_INTERACTIVE_TESTING
             std::cin.get();

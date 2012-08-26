@@ -3,7 +3,7 @@
 #include "../../include/_intern/_base.h"
 #include "../../include/Testing/Base/_testingbase.h"
 
-#ifdef _TEST
+#ifdef _fff_TEST
 
 namespace fff {
 namespace Testing {

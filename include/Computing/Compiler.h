@@ -77,6 +77,11 @@ public:
         fff_EXPECT_VALID_OBJ_RET(m_env);
 	}
 
+    OpenCLEnvironment &getEnv()
+	{
+        fff_EXPECT_VALID_OBJ_RET(m_env);
+	}
+
     String getIncludeDirectory() const
     {
         return 

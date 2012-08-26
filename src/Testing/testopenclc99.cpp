@@ -31,7 +31,7 @@
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifdef _TEST
+#ifdef _fff_TEST
 
 //---------------------------------------------------------+
 //! PROJECT INCLUDES

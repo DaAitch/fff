@@ -45,7 +45,9 @@ private:
     T &m_any;
 };
 */
-#if _DEBUG
+
+#if defined(_fff_TEST) && 0
+
 #define fff_EXPECT(LHS, REL, RHS) \
     do{ if(!((LHS) REL (RHS))) { \
         fff_ERR(InvalidRelation, \

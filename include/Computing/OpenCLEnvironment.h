@@ -91,6 +91,20 @@ public:
         out();
     }
 
+    Bool isGPU() const throw()
+    {
+        return
+            m_device.getInfo<CL_DEVICE_TYPE>() ==
+            CL_DEVICE_TYPE_GPU;
+    }
+
+    Bool isCPU() const throw()
+    {
+        return
+            m_device.getInfo<CL_DEVICE_TYPE>() ==
+            CL_DEVICE_TYPE_CPU;
+    }
+
 	bool operator!() const
 	{
 		return !m_platform() ||

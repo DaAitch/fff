@@ -59,9 +59,9 @@ public:
 
 Convolution(
 		const Compiler &compiler,
-		const IUbiMultiChannel<SampleType> &x,
-		const IUbiMultiChannel<SampleType> &h,
-		IUbiMultiChannel<SampleType> &y)
+		const UbiMultiChannel<SampleType> &x,
+		const UbiMultiChannel<SampleType> &h,
+		UbiMultiChannel<SampleType> &y)
 		:
         KernelBase(
             compiler,
@@ -79,33 +79,11 @@ Convolution(
         fff_EXPECT_VALID_OBJ(h);
         fff_EXPECT_VALID_OBJ(y);
 
-        fff_EXPECT_TRUE(getX().getHostBuffer().isAllocated());
-        fff_EXPECT_TRUE(getX().getUbiBuffer().isReadable());
+
+
         
-        fff_EXPECT_TRUE(getH().getHostBuffer().isAllocated());
-        fff_EXPECT_TRUE(getH().getUbiBuffer().isReadable());
-
-        fff_EXPECT_TRUE(getY().getHostBuffer().isAllocated());
-        fff_EXPECT_TRUE(getY().getUbiBuffer().isWritable());
-
-        UInt channelsX, channelsY, channelsH;
-
-        channelsX = m_x.getHostBuffer().getChannelCount();
-        channelsY = m_y.getHostBuffer().getChannelCount();
-        channelsH = m_h.getHostBuffer().getChannelCount();
-
-        fff_EXPECT(channelsX, ==, channelsY);
-        fff_EXPECT(channelsX, ==, channelsH);
-
-        fff_EXPECT_TRUE(
-            compiler.getWorker().isMOkay(
-                getH().getHostBuffer().getSampleCount()));
         
-		fff_EXPECT(
-            getX().getHostBuffer().getSampleCount() +
-			getH().getHostBuffer().getSampleCount() - 1,
-            ==,
-			getY().getHostBuffer().getSampleCount());
+		
 
 
 		fff_RTCLC_ERR_INIT();
@@ -121,28 +99,28 @@ Convolution(
         param = dontOptimizeArgs(
             0,
             0,
-            getH().getHostBuffer().getSampleCount(),
+            getH().getSampleLength(),
             param);
 
         fff_EXPECT(argsCount(), ==, param);
 	}
 
-    const IUbiMultiChannel<SampleType> &getX() const
+    const UbiMultiChannel<SampleType> &getX() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_x);
     }
 
-    const IUbiMultiChannel<SampleType> &getH() const
+    const UbiMultiChannel<SampleType> &getH() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_h);
     }
 
-    const IUbiMultiChannel<SampleType> &getY() const
+    const UbiMultiChannel<SampleType> &getY() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_y);
     }
 
-    IUbiMultiChannel<SampleType> &getY()
+    UbiMultiChannel<SampleType> &getY()
     {
         fff_EXPECT_VALID_OBJ_RET(m_y);
     }
@@ -151,40 +129,54 @@ Convolution(
 
 	void invoke()
 	{
+        fff_EXPECT_TRUE(getX().getDev().isReadable());
+        fff_EXPECT_TRUE(getH().getDev().isReadable());
+        fff_EXPECT_TRUE(getY().getDev().isWritable());
+
+        fff_EXPECT(getX().getChannelCount(), ==, getH().getChannelCount());
+        fff_EXPECT(getX().getChannelCount(), ==, getY().getChannelCount());
+
+        fff_EXPECT(
+            getX().getSampleLength() +
+			getH().getSampleLength() - 1,
+            <=,
+			getY().getSampleLength());
+
         fff_RTCLC_ERR_INIT();
 
         fff_EXPECT_VALID_THIS();
 
 		for(
 			UInt channel = 0;
-			channel < getX().getHostBuffer().getChannelCount();
+			channel < getX().getChannelCount();
 			++channel)
 		{
             fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    0, getX().getUbiBuffer().getChannel(channel).getReal()));
+				    0, getX().getDev()[channel].getReal()));
             fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    1, getX().getHostBuffer().getSampleCount()));
+				    1, getX().getSampleLength()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    2, getH().getUbiBuffer().getChannel(channel).getReal()));
+				    2, getH().getDev()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    3, getY().getUbiBuffer().getChannel(channel).getReal()));
+				    3, getY().getDev()[channel].getReal()));
 
-			getX().getUbiBuffer().enqueueDeviceUpdate(
+			getX().enqueueDeviceUpdate(
 				channel);
-			getH().getUbiBuffer().enqueueDeviceUpdate(
+			getH().enqueueDeviceUpdate(
 				channel);
 
             // concurrent, let opencl decide which
             // W to use
 			enqueueNDRange(
-                getX().getHostBuffer().getSampleCount(),
+                getX().getSampleLength() +
+                getH().getSampleLength(),
                 0);
 
-			getY().getUbiBuffer().enqueueHostUpdate(
+			getY().enqueueHostUpdate(
 				channel);
 		}
 	}
@@ -211,10 +203,10 @@ Convolution(
 
 private:
 
-	const IUbiMultiChannel<SampleType>
+	const UbiMultiChannel<SampleType>
 		&m_x,
 		&m_h;
-	IUbiMultiChannel<SampleType>
+	UbiMultiChannel<SampleType>
 		&m_y;
 };
 

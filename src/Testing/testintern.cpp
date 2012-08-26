@@ -1,5 +1,5 @@
 
-#ifdef _TEST
+#ifdef _fff_TEST
 
 #include "../../include/_intern.h"
 #include "../../include/Testing/testintern.h"

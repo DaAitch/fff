@@ -62,14 +62,17 @@ namespace Host {
 			HostMultiChannelPreallocated<MySample> My;
 
 	public:
-		HostMultiChannelPreallocated()
+        HostMultiChannelPreallocated(
+            UInt channelCount=0,
+            UInt sampleCount=0)
 		:
 		m_channelCount(0),
 		m_sampleCount(0),
 		m_channelSamples(NULL)
 		{
-			fff_EXPECT_FALSE(
-				isAllocated());
+			alloc(
+                channelCount,
+                sampleCount);
 		}
 		
 		void alloc(
@@ -151,19 +154,14 @@ namespace Host {
         }
 
 		void setPointer(
-			MySample **real,
-			UInt sampleCount)
+			MySample **real)
 		{
-			fff_EXPECT(sampleCount, <=, getImagSampleCount());
-
 			m_channelSamples = real;
-			m_sampleCount = sampleCount;
 		}
 
 		void clearPointer()
 		{
 			m_channelSamples = NULL;
-			m_sampleCount = 0;
 		}
 
 		const MySample *getRawReal(
@@ -218,7 +216,7 @@ namespace Host {
             fff_EXPECT(sampleCount, >, 0);
 
 			m_channelCount = channelCount;
-			m_imagSampleCount = sampleCount;
+			m_sampleCount = sampleCount;
 
 			m_imagSamples.resize(
 				getChannelCount());
@@ -228,7 +226,7 @@ namespace Host {
 				channel < getChannelCount();
 				++channel)
 			{
-				m_imagSamples[channel] = MySamples(getImagSampleCount());
+				m_imagSamples[channel] = MySamples(getSampleCount());
 			}
 
 			fff_EXPECT_TRUE(isAllocated());
@@ -255,7 +253,7 @@ namespace Host {
 			m_imagSamples.clear();
 	
 			m_channelCount = 0;
-			m_imagSampleCount = 0;
+			m_sampleCount = 0;
 
 			fff_EXPECT_FALSE(isAllocated());
 		}
@@ -270,7 +268,6 @@ namespace Host {
 
 		MySample	**m_channelSamples;
 		MyMChSamples m_imagSamples;
-		UInt m_imagSampleCount;
 
 		UInt
 			m_channelCount,

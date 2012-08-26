@@ -31,7 +31,7 @@
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifdef _TEST
+#ifdef _fff_TEST
 
 #ifndef __testopenclc99_h__included__
 #define __testopenclc99_h__included__

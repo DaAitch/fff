@@ -56,8 +56,8 @@
 		public:
 			Transformation(
 				const Compiler &compiler,
-				IUbiMultiChannel<SampleType> &continuous,
-				IUbiMultiChannel<SampleType> &spectral,
+				UbiMultiChannel<SampleType> &continuous,
+				UbiMultiChannel<SampleType> &spectral,
 				Bool cont2spec = True
 				)
 				:
@@ -81,48 +81,51 @@
                 fff_EXPECT_VALID_OBJ(continuous);
                 fff_EXPECT_VALID_OBJ(spectral);
 
-                fff_EXPECT_TRUE(getContinuous().getHostBuffer().isAllocated());
-                fff_EXPECT_TRUE(getSpectral().getHostBuffer().isAllocated());
+                fff_EXPECT_TRUE(getContinuous().getHost().isAllocated());
+                fff_EXPECT_TRUE(getSpectral().getHost().isAllocated());
 
+                // to be implemented
+                /*
                 fff_EXPECT_TRUE(getCompiler().getWorker().isBlockNOkay(
                     getContinuous().getHostBuffer().getSampleCount()));
 
                 fff_EXPECT_TRUE(getCompiler().getWorker().isBlockNOkay(
                     getSpectral().getHostBuffer().getSampleCount()));
+                    */
 
                 fff_EXPECT(
-                    getContinuous().getHostBuffer().getChannelCount(),
+                    getContinuous().getChannelCount(),
                     ==,
-                    getSpectral().getHostBuffer().getChannelCount()
+                    getSpectral().getChannelCount()
                 );
 
                 fff_EXPECT(
-                    getContinuous().getHostBuffer().getSampleCount(),
+                    getContinuous().getSampleLength(),
                     ==,
-                    getSpectral().getHostBuffer().getSampleCount()
+                    getSpectral().getSampleLength()
                 );
 
                 fff_EXPECT_TRUE(
-                    cl::isMultiple2(getContinuous().getHostBuffer().getSampleCount())
+                    cl::isMultiple2(getContinuous().getSampleLength())
                     &&
-                    cl::isMultiple2(getSpectral().getHostBuffer().getSampleCount())
+                    cl::isMultiple2(getSpectral().getSampleLength())
                 );
 
 
-                fff_EXPECT_TRUE(getFrom().getUbiBuffer().isReadable());
-                fff_EXPECT_TRUE(getTo().getUbiBuffer().isReadable());
-                fff_EXPECT_TRUE(getTo().getUbiBuffer().isWritable());
+                fff_EXPECT_TRUE(getFrom().getDev().isReadable());
+                fff_EXPECT_TRUE(getTo().getDev().isReadable());
+                fff_EXPECT_TRUE(getTo().getDev().isWritable());
 
                 fff_EXPECT(
-                    getContinuous().getHostBuffer().getChannelCount(),
+                    getContinuous().getChannelCount(),
                     ==,
-                    getSpectral().getHostBuffer().getChannelCount()
+                    getSpectral().getChannelCount()
                 );
 
                 fff_EXPECT(
-                    getContinuous().getHostBuffer().getSampleCount(),
+                    getContinuous().getSampleLength(),
                     ==,
-                    getSpectral().getHostBuffer().getSampleCount()
+                    getSpectral().getSampleLength()
                 );
 
 				fff_EXPECT_VALID_CLOBJ(getKernel());
@@ -136,7 +139,7 @@
                 param++; // to real
                 param++; // to imag
 
-                UInt lb2BlockN = cl::lb2Multiple2In(getFrom().getHostBuffer().getSampleCount());
+                UInt lb2BlockN = cl::lb2Multiple2In(getFrom().getSampleLength());
 
                 m_lb2W = smartLb2WorkerLimit(lb2BlockN-1);
 
@@ -156,63 +159,66 @@
 
 				for(
 					UInt channel = 0;
-					channel < getContinuous().getHostBuffer().getChannelCount();
+					channel < getContinuous().getChannelCount();
 					++channel)
 				{
                     fff_RTCLC_SEQ_CHECK_RET(
 					    getKernel().setArg(
-						    0, getFrom().getUbiBuffer().getChannel(channel).getReal()));
+						    0, getFrom().getDev()[channel].getReal()));
 				    fff_RTCLC_SEQ_CHECK_RET(
 					    getKernel().setArg(
-						    1, getFrom().getUbiBuffer().getChannel(channel).getImag()));
+						    1, getFrom().getDev()[channel].getImag()));
 
 				    fff_RTCLC_SEQ_CHECK_RET(
 					    getKernel().setArg(
-						    2, getTo().getUbiBuffer().getChannel(channel).getReal()));
+						    2, getTo().getDev()[channel].getReal()));
 				    fff_RTCLC_SEQ_CHECK_RET(
 					    getKernel().setArg(
-						    3, getTo().getUbiBuffer().getChannel(channel).getImag()));
+						    3, getTo().getDev()[channel].getImag()));
 
                     // copy From to Host
-                    getFrom().getUbiBuffer().enqueueDeviceUpdate(channel);
+                    getFrom().enqueueDeviceUpdate(channel);
 
+                    // to be implemented
+                    /*
                     // if optimized
                     if(getCompiler().getWorker().isOptimized())
                     {
                         // we dont need no From, so
                         // copy From -> To
-                        getFrom().getUbiBuffer()[channel].enqueueCopy(
-                            getTo().getUbiBuffer()[channel]);
+                        getFrom().getDev()[channel].enqueueCopy(
+                            getTo().getDev()[channel]);
                     }
+                    */
 
                     enqueueNDRange(
                         fff_POW2(m_lb2W),
                         fff_POW2(m_lb2W)
                         );
 
-					getTo().getUbiBuffer().enqueueHostUpdate(
+					getTo().enqueueHostUpdate(
 						channel);
 				}
 			}
 
 			
 
-            IUbiMultiChannel<SampleType> &getSpectral()
+            UbiMultiChannel<SampleType> &getSpectral()
             {
                 fff_EXPECT_VALID_OBJ_RET(m_spectralBuf);
             }
 
-            const IUbiMultiChannel<SampleType> &getSpectral() const
+            const UbiMultiChannel<SampleType> &getSpectral() const
             {
                 fff_EXPECT_VALID_OBJ_RET(m_spectralBuf);
             }
 
-            IUbiMultiChannel<SampleType> &getContinuous()
+            UbiMultiChannel<SampleType> &getContinuous()
             {
                 fff_EXPECT_VALID_OBJ_RET(m_continuousBuf);
             }
 
-            const IUbiMultiChannel<SampleType> &getContinuous() const
+            const UbiMultiChannel<SampleType> &getContinuous() const
             {
                 fff_EXPECT_VALID_OBJ_RET(m_continuousBuf);
             }
@@ -224,7 +230,7 @@
                     m_cont2spec;
             }
 
-            IUbiMultiChannel<SampleType> &getFrom()
+            UbiMultiChannel<SampleType> &getFrom()
             {
                 return
                     isResultSpectral() ?
@@ -232,7 +238,7 @@
                         getSpectral();
             }
 
-            const IUbiMultiChannel<SampleType> &getFrom() const
+            const UbiMultiChannel<SampleType> &getFrom() const
             {
                 return
                     isResultSpectral() ?
@@ -240,7 +246,7 @@
                         getSpectral();
             }
 
-            IUbiMultiChannel<SampleType> &getTo()
+            UbiMultiChannel<SampleType> &getTo()
             {
                 return
                     isResultSpectral() ?
@@ -248,7 +254,7 @@
                         getContinuous();
             }
 
-            const IUbiMultiChannel<SampleType> &getTo() const
+            const UbiMultiChannel<SampleType> &getTo() const
             {
                 return
                     isResultSpectral() ?
@@ -266,7 +272,7 @@
 
 		private:
 
-			IUbiMultiChannel<SampleType>
+			UbiMultiChannel<SampleType>
 				&m_spectralBuf,
 				&m_continuousBuf;
 

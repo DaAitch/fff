@@ -40,6 +40,8 @@
 #include "../Compiler.h"
 #include "../RuntimeMapping/Mapper.h"
 
+#include "../Events.h"
+
 using namespace fff::Buffer;
 using namespace fff::Buffer::Complex;
 using namespace fff::Buffer::Complex::Host;
@@ -66,73 +68,54 @@ public:
 public:
 	FastConvolution(
 		const Compiler &compiler,
-		IUbiMultiChannel<SampleType> &s,
-		const IUbiMultiChannel<SampleType> &x,
-		const IUbiMultiChannel<SampleType> &H,
-		IUbiMultiChannel<SampleType> &y,
+        UInt ssize,
+        UInt xsize,
+		const UbiMultiChannel<SampleType> &H,
         UInt f
 		)
 		:
         KernelBase(
             compiler,
             fff_STRINGIFY(fff_KERNEL_FCONV)),
-		m_in(
+        m_useIn1(
+            True),
+		m_in1(
 			compiler.getEnv()),
-		m_s(
-			s),
-		m_x(
-			x),
+        m_in2(
+			compiler.getEnv()),
+        m_y(
+            compiler.getEnv()),
 		m_H(
 			H),
 		m_tmp1(
 			compiler.getEnv()),
 		m_tmp2(
 			compiler.getEnv()),
-		m_y(
-			y)
+        m_ssize(
+            ssize),
+        m_xsize(
+            xsize)
 	{
 
 		fff_RTCLC_ERR_INIT();
 
         fff_EXPECT_VALID_OBJ(compiler);
-		fff_EXPECT_VALID_OBJ(getS());
-        fff_EXPECT_VALID_OBJ(getY());
-        fff_EXPECT_VALID_OBJ(getX());
-
-        if(getX().isFix())
-            fff_EXPECT_TRUE(
-                getH().hasSameChannelCount(
-                    getX())
-            );
-
-
-		fff_EXPECT_TRUE(
-            getH().hasSameChannelCount(
-                getS())
-        );
-
-        if(getX().isFix())
-            fff_EXPECT_TRUE(
-                getX().hasSameSize(
-                    getY())
-            );
 
         // x, s and y are not directly used in the kernel, but copied before,
         // though does not matter if readable or writable either
 
         fff_EXPECT_TRUE(
-            getH().getUbiBuffer().isReadable());
+            getH().getDev().isReadable());
 
         ComputingData<SampleType> cd(
-            getS().getHostBuffer().getSampleCount()+1);
+            m_ssize + 1);
         DeviceProperties devprops(getCompiler().getEnv().getDevice());
         Mapper map(cd, devprops, f);
 
 		UInt extensionElementsCount = cl::calcOverlapSaveSampleCount(
-			getX().getHostBuffer().getSampleCount() +
-			getS().getHostBuffer().getSampleCount(),
+			xsize + m_ssize,
 			map.getLb2N(),
-			getS().getHostBuffer().getSampleCount() + 1);
+			m_ssize + 1);
 
 		m_fftCount = 
 			fff_CEILDIV(
@@ -145,22 +128,37 @@ public:
         m_lb2N = map.getLb2N();
 
         fff_EXPECT(
-            getH().getHostBuffer().getSampleCount(),
+            getH().getSampleLength(),
             ==,
             fff_POW2(map.getLb2N()));
 
-		m_in.alloc(
+		m_in1.alloc(
 			CL_MEM_READ_ONLY,
-            getH().getHostBuffer().getChannelCount(),
-			getS().getHostBuffer().getSampleCount() +
-			getX().getHostBuffer().getSampleCount());
+            getH().getChannelCount(),
+			m_ssize +
+			m_xsize);
+
+        m_in2.alloc(
+			CL_MEM_READ_ONLY,
+            getH().getChannelCount(),
+			m_ssize +
+			m_xsize);
+
+        m_y.alloc(
+            CL_MEM_WRITE_ONLY,
+            getH().getChannelCount(),
+            m_xsize);
+
+        H.enqueueDeviceUpdate();
+
+
 		m_tmp1.alloc(
 			CL_MEM_READ_WRITE,
-            getH().getHostBuffer().getChannelCount(),
+            getH().getChannelCount(),
 			extensionElementsCount);
 		m_tmp2.alloc(
 			CL_MEM_READ_WRITE,
-            getH().getHostBuffer().getChannelCount(),
+            getH().getChannelCount(),
 			extensionElementsCount);
 
         UInt param = 0;
@@ -182,7 +180,7 @@ public:
         param = dontOptimizeArgs(
             getLb2N(),
             getLb2W(),
-            getS().getHostBuffer().getSampleCount()+1,
+            m_ssize +1,
             param);
 
         fff_EXPECT(
@@ -191,108 +189,118 @@ public:
             argsCount());
 	}
 
-	void invoke()
+    void invoke()
+    {
+        throw;
+    }
+
+	void invoke(
+        UInt inputSampleCount,
+        IHostMultiChannel<SampleType> &x,
+        IHostMultiChannel<SampleType> &y)
 	{
-        fff_EXPECT_TRUE(
-            getH().hasSameChannelCount(
-                getX())
-        );
-
-        fff_EXPECT(
-            getX().getHostBuffer().getSampleCount(),
-            <=,
-            getY().getHostBuffer().getSampleCount()
-        );
-
         fff_RTCLC_ERR_INIT();
 
         fff_RTCLC_SEQ_CHECK(
             getKernel().setArg(2,
-                getS().getHostBuffer().getSampleCount() +
-                getX().getHostBuffer().getSampleCount()));
+                inputSampleCount + m_ssize));
 
-        const UInt
-                sSize = getS().getHostBuffer().getSampleCount(),
-                xSize = getX().getHostBuffer().getSampleCount();
+        UbiMultiChannel<SampleType> ux(x, getCurrentIn());
+        UbiMultiChannel<SampleType> uy(y, getY());
 
+        ux.setSampleLength(inputSampleCount);
+        uy.setSampleLength(inputSampleCount);
+
+        ux.setDevOffset(m_ssize);
+
+        UInt channelCount = getH().getChannelCount();
+
+        // 1. copy x & run
 		for(
 			UInt channel = 0;
-			channel < getS().getHostBuffer().getChannelCount();
+			channel < channelCount;
 			++channel)
 		{
+
+            ux.enqueueDeviceUpdate(channel);
+
             fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    0, getIn().getChannel(channel).getReal()));
+				    0, getCurrentIn()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    1, getIn().getChannel(channel).getImag()));
+				    1, getCurrentIn()[channel].getImag()));
 
             // 2 = xsize
 
             fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    3, getH().getUbiBuffer().getChannel(channel).getReal()));
+				    3, getH().getDev()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    4, getH().getUbiBuffer().getChannel(channel).getImag()));
+				    4, getH().getDev()[channel].getImag()));
+            
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    5, getTmp1().getChannel(channel).getReal()));
+				    5, getTmp1()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    6, getTmp1().getChannel(channel).getImag()));
+				    6, getTmp1()[channel].getImag()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    7, getTmp2().getChannel(channel).getReal()));
+				    7, getTmp2()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    8, getTmp2().getChannel(channel).getImag()));
+				    8, getTmp2()[channel].getImag()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    9, getY().getUbiBuffer().getChannel(channel).getReal()));
+				    9, getY()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    10, getY().getUbiBuffer().getChannel(channel).getImag()));
-
-			getS().getUbiBuffer().enqueueDeviceUpdate(
-				channel);
-                
-			getS().getUbiBuffer().getChannel(channel).enqueueCopy(
-				getIn().getChannel(channel),
-				0,
-				sSize);
-
-			getX().getUbiBuffer().enqueueDeviceUpdate(
-				channel);
-
-			getX().getUbiBuffer().getChannel(channel).enqueueCopy(
-				getIn().getChannel(channel),
-				sSize,
-				xSize);
-   
-            getH().getUbiBuffer().enqueueDeviceUpdate(channel);
-
+				    10, getY()[channel].getImag()));
+            
             enqueueNDRange(
                 getFftCount() * fff_POW2(getLb2W()),
                 fff_POW2(getLb2W()));
-                
-			getY().getUbiBuffer().enqueueHostUpdate(
-				channel);
 
-			getIn().getChannel(channel).enqueueCopy(
-				getS().getUbiBuffer().getChannel(channel),
-                xSize,
-				0,
-				sSize);
-
-			getS().getUbiBuffer().enqueueHostUpdate(
-				channel);
-                
             getCompiler().getEnv().getQueue().flush();
-
-
-            
+                
 		}
+
+        // getCompiler().getEnv().getQueue().flush();
+
+        Events e(channelCount<<1);
+
+        for(UInt channel = 0;
+            channel < channelCount;
+            ++channel)
+        {
+            ::cl::Event eR, eI;
+                uy.enqueueHostUpdate(
+				    channel,
+                    &eR, &eI);
+
+            e.m_events[(channel<<1)    ] = eR;
+            e.m_events[(channel<<1) + 1] = eI;
+        }
+
+        getCompiler().getEnv().getQueue().flush();
+
+        for(UInt channel = 0;
+            channel < channelCount;
+            ++channel)
+        {
+            
+			getCurrentIn()[channel].enqueueCopy(
+				getOtherIn()[channel],
+                inputSampleCount,
+				0,
+				m_ssize);
+        }
+
+        switchIn();
+
+        e.wait();
 	}
 
     UInt getFftCount() const
@@ -313,35 +321,12 @@ public:
             m_lb2N;
     }
 
-    IUbiMultiChannel<SampleType> &getS()
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_s);
-    }
-
-    const IUbiMultiChannel<SampleType> &getS() const
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_s);
-    }
-
-    IUbiMultiChannel<SampleType> &getY()
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_y);
-    }
-
-    const IUbiMultiChannel<SampleType> &getY() const
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_y);
-    }
-
-    const IUbiMultiChannel<SampleType> &getH() const
+    const UbiMultiChannel<SampleType> &getH() const
     {
         fff_EXPECT_VALID_OBJ_RET(m_H);
     }
 
-    const IUbiMultiChannel<SampleType> &getX() const
-    {
-        fff_EXPECT_VALID_OBJ_RET(m_x);
-    }
+
 
     /*
     virtual void print(logstream &out) const
@@ -358,27 +343,42 @@ public:
     bool operator!() const throw()
     {
         return
-            !m_in ||
+            !m_in1 ||
+            !m_in2 ||
             !m_tmp1 ||
             !m_tmp2 ||
-            !m_x ||
-            !m_s ||
             !m_H ||
-            !m_y ||
             KernelBase::operator!();
     }
-		
 
-private:
-
-    const DevMultiChannel<SampleType> &getIn() const
+    const DevMultiChannel<SampleType> &getIn1() const
     {
-        fff_EXPECT_VALID_OBJ_RET(m_in);
+        fff_EXPECT_VALID_OBJ_RET(m_in1);
     }
 
-    DevMultiChannel<SampleType> &getIn()
+    DevMultiChannel<SampleType> &getIn1()
     {
-        fff_EXPECT_VALID_OBJ_RET(m_in);
+        fff_EXPECT_VALID_OBJ_RET(m_in1);
+    }
+
+    const DevMultiChannel<SampleType> &getIn2() const
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_in2);
+    }
+
+    DevMultiChannel<SampleType> &getIn2()
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_in2);
+    }
+
+    const DevMultiChannel<SampleType> &getY() const
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_y);
+    }
+
+    DevMultiChannel<SampleType> &getY()
+    {
+        fff_EXPECT_VALID_OBJ_RET(m_y);
     }
 
     const DevMultiChannel<SampleType> &getTmp1() const
@@ -401,17 +401,54 @@ private:
         fff_EXPECT_VALID_OBJ_RET(m_tmp2);
     }
 
+    DevMultiChannel<SampleType> &getCurrentIn()
+    {
+        return
+            m_useIn1 ?
+            getIn1() : getIn2();
+    }
+
+    const DevMultiChannel<SampleType> &getCurrentIn() const
+    {
+        return
+            m_useIn1 ?
+            getIn1() : getIn2();
+    }
+
+    DevMultiChannel<SampleType> &getOtherIn()
+    {
+        return
+            m_useIn1 ?
+            getIn2() : getIn1();
+    }
+
+    const DevMultiChannel<SampleType> &getOtherIn() const
+    {
+        return
+            m_useIn1 ?
+            getIn2() : getIn1();
+    }
+
+    void switchIn()
+    {
+        m_useIn1 =
+            !m_useIn1;
+    }
+
+private:
+
+    Bool
+        m_useIn1;
+
 	DevMultiChannel<SampleType>
-		m_in,
+		m_in1,
+        m_in2,
+        m_y,
 		m_tmp1,
 		m_tmp2;
 
-	IUbiMultiChannel<SampleType>
-		&m_s,
-		&m_y;
-	const IUbiMultiChannel<SampleType>
-		&m_H,
-		&m_x;
+	const UbiMultiChannel<SampleType>
+		&m_H;
 
     UInt
         m_fftCount;
@@ -420,7 +457,9 @@ private:
         m_lb2W;
 
     UInt
-        m_lb2N;
+        m_lb2N,
+        m_xsize,
+        m_ssize;
 };
 
 }

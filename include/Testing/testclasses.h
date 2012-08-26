@@ -30,7 +30,7 @@
 //!	\brief		fff testing functions.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
-#ifdef _TEST
+#ifdef _fff_TEST
 
 #ifndef __testclasses_h__included__
 #define __testclasses_h__included__
@@ -53,6 +53,8 @@ fff_TEST_DECLARE(fff, classes)
 
 namespace Classes {
 
+
+
 // Computing
 
 
@@ -72,13 +74,13 @@ fff_TEST_DECLARE(classes, Vector);
 fff_TEST_DECLARE(classes, ComplexVector);
 
 fff_TEST_DECLARE(classes, DevSingleChannel);
+fff_TEST_DECLARE(classes, DevMultiChannel);
 			
 fff_TEST_DECLARE(classes, HostSingleChannel);
 fff_TEST_DECLARE(classes, HostMultiChannel);
 fff_TEST_DECLARE(classes, HostMultiChannelPreallocated);
 
 
-fff_TEST_DECLARE(classes, UbiMultiChannelBase);
 fff_TEST_DECLARE(classes, UbiMultiChannel);
 
 // Kernel

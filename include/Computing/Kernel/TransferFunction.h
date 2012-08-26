@@ -57,9 +57,9 @@ public:
 
 	TransferFunction(
 		const Compiler &compiler,
-		const IUbiMultiChannel<SampleType> &b,
-		const IUbiMultiChannel<SampleType> &a,
-		IUbiMultiChannel<SampleType> &H)
+		const UbiMultiChannel<SampleType> &b,
+		const UbiMultiChannel<SampleType> &a,
+		UbiMultiChannel<SampleType> &H)
 		:
         KernelBase(
             compiler,
@@ -80,46 +80,48 @@ public:
         fff_EXPECT_VALID_OBJ(getH());
 
         fff_EXPECT(
-            getB().getHostBuffer().getChannelCount(),
+            getB().getChannelCount(),
             ==,
-            getA().getHostBuffer().getChannelCount());
+            getA().getChannelCount());
 
         fff_EXPECT(
-            getB().getHostBuffer().getChannelCount(),
+            getB().getChannelCount(),
             ==,
-            getH().getHostBuffer().getChannelCount());
+            getH().getChannelCount());
 
         fff_EXPECT(
-            getA().getHostBuffer().getSampleCount(),
+            getA().getSampleLength(),
             ==,
-            getB().getHostBuffer().getSampleCount());
+            getB().getSampleLength());
 
         fff_EXPECT(
-            getA().getHostBuffer().getSampleCount(),
+            getA().getSampleLength(),
             ==,
-            getH().getHostBuffer().getSampleCount());
+            getH().getSampleLength());
 
+        // to be implemented
+        /*
         fff_EXPECT_TRUE(
             getCompiler().getWorker().isBlockNOkay(
-                getA().getHostBuffer().getSampleCount()));
+                getA().getTransferSampleCount()));
+                */
+        fff_EXPECT_TRUE(
+            cl::isMultiple2(getA().getSampleLength()) &&
+            cl::isMultiple2(getB().getSampleLength()) &&
+            cl::isMultiple2(getH().getSampleLength()));
 
         fff_EXPECT_TRUE(
-            cl::isMultiple2(getA().getHostBuffer().getSampleCount()) &&
-            cl::isMultiple2(getB().getHostBuffer().getSampleCount()) &&
-            cl::isMultiple2(getH().getHostBuffer().getSampleCount()));
-
+            getA().getDev().isReadable());
         fff_EXPECT_TRUE(
-            getA().getUbiBuffer().isReadable());
+            getB().getDev().isReadable());
         fff_EXPECT_TRUE(
-            getB().getUbiBuffer().isReadable());
-        fff_EXPECT_TRUE(
-            getH().getUbiBuffer().isWritable() &&
-            getH().getUbiBuffer().isReadable());
+            getH().getDev().isWritable() &&
+            getH().getDev().isReadable());
 
 		m_tmp.alloc(
 			CL_MEM_READ_WRITE,
-            getH().getHostBuffer().getChannelCount(),
-			getH().getHostBuffer().getSampleCount());
+            getH().getChannelCount(),
+			getH().getSampleLength());
 
         fff_EXPECT_VALID_OBJ(getTmp());
 
@@ -136,7 +138,7 @@ public:
         param++; // H real
         param++; // H imag
 
-        UInt lb2N = cl::lb2Multiple2In(getH().getHostBuffer().getSampleCount());
+        UInt lb2N = cl::lb2Multiple2In(getH().getSampleLength());
         m_lb2W = smartLb2WorkerLimit(lb2N-1);
 
         param = dontOptimizeArgs(
@@ -156,64 +158,64 @@ public:
         fff_RTCLC_ERR_INIT();
 		for(
 			UInt channel = 0;
-			channel < getB().getHostBuffer().getChannelCount();
+			channel < getB().getChannelCount();
 			++channel)
 		{
             fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    0, getB().getUbiBuffer().getChannel(channel).getReal()));
+				    0, getB().getDev()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    1, getB().getUbiBuffer().getChannel(channel).getImag()));
+				    1, getB().getDev()[channel].getImag()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    2, getA().getUbiBuffer().getChannel(channel).getReal()));
+				    2, getA().getDev()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    3, getA().getUbiBuffer().getChannel(channel).getImag()));
+				    3, getA().getDev()[channel].getImag()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    4, getTmp().getChannel(channel).getReal()));
+				    4, getTmp()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    5, getTmp().getChannel(channel).getImag()));
+				    5, getTmp()[channel].getImag()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    6, getH().getUbiBuffer().getChannel(channel).getReal()));
+				    6, getH().getDev()[channel].getReal()));
 		    fff_RTCLC_SEQ_CHECK_RET(
 			    getKernel().setArg(
-				    7, getH().getUbiBuffer().getChannel(channel).getImag()));
+				    7, getH().getDev()[channel].getImag()));
 
-			getB().getUbiBuffer().enqueueDeviceUpdate(
+			getB().enqueueDeviceUpdate(
 				channel);
-			getA().getUbiBuffer().enqueueDeviceUpdate(
+			getA().enqueueDeviceUpdate(
 				channel);
 
 			enqueueNDRange(
                 fff_POW2(m_lb2W),
                 fff_POW2(m_lb2W));
 
-			getH().getUbiBuffer().enqueueHostUpdate(
+			getH().enqueueHostUpdate(
 				channel);
 		}
 	}
 
-	IUbiMultiChannel<SampleType> &getH()
+	UbiMultiChannel<SampleType> &getH()
 	{
 		fff_EXPECT_VALID_OBJ_RET(m_H);
 	}
 
-	const IUbiMultiChannel<SampleType> &getH() const
+	const UbiMultiChannel<SampleType> &getH() const
 	{
 		fff_EXPECT_VALID_OBJ_RET(m_H);
 	}
 
-	const IUbiMultiChannel<SampleType> &getA() const
+	const UbiMultiChannel<SampleType> &getA() const
 	{
 		fff_EXPECT_VALID_OBJ_RET(m_a);
 	}
 
-	const IUbiMultiChannel<SampleType> &getB() const
+	const UbiMultiChannel<SampleType> &getB() const
 	{
 		fff_EXPECT_VALID_OBJ_RET(m_b);
 	}
@@ -242,11 +244,11 @@ private:
 
     UInt m_lb2W;
 
-	const IUbiMultiChannel<SampleType>
+	const UbiMultiChannel<SampleType>
 		&m_b,
 		&m_a;
 
-	IUbiMultiChannel<SampleType>
+	UbiMultiChannel<SampleType>
 		&m_H;
 
 	DevMultiChannel<SampleType>
