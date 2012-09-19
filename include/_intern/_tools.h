@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/__ffTools.h
+// fff/include/_intern/_tools.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		__fffTools.h
+//!	\file		_toots.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Some smart helper function and macros.
@@ -78,6 +78,19 @@ void copySamples(
 {
     while(n--)
         to[n] = from[n];
+}
+
+template<
+    class SampleType
+>
+void copySamplesCyclic(
+    SampleType *to,
+    unsigned int n,
+    const SampleType *from,
+    unsigned int m)
+{
+    while(n--)
+        to[n] = from[n%m];
 }
 
 template<

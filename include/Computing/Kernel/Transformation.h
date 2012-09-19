@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffTransformKernel.h
+// fff/include/Computing/Kernel/Transformation.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffTransformKernel.h
+//!	\file		Transformation.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Computing spectral to continuous samples

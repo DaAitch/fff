@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/_intern/__rtclc.h
+// fff/include/_intern/exceptionsrtclc.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		__rtclc.h
+//!	\file		exceptionsrtclc.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Runtime OpenCL Check functions.

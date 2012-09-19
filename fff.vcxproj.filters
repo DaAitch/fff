@@ -239,7 +239,10 @@
     <ClInclude Include="include\Computing\Events.h">
       <Filter>code</Filter>
     </ClInclude>
-    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelFactory.h">
+    <ClInclude Include="include\Factory\UbiMultiChannelFactory.h">
+      <Filter>code</Filter>
+    </ClInclude>
+    <ClInclude Include="include\factory.h">
       <Filter>code</Filter>
     </ClInclude>
   </ItemGroup>

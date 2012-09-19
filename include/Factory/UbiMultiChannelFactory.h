@@ -1,23 +1,52 @@
-
+//---------------------------------------------------------+
+// fff/include/Factory/UbiMultiChannelFactory.h
+//---------------------------------------------------------+
+//  License:
+//    
+//    The Fast Filtering Framework implements an LTI filter
+//    with Khronos Group's OpenCL.
+//    Copyright (C) 2012  Philipp Renoth <fff@aitch.de>
+//
+//    This program is free software: you can redistribute
+//    it and/or modify it under the terms of the
+//    GNU General Public License as published by the
+//    Free Software Foundation, either version 3 of the
+//    License, or (at your option) any later version.
+//
+//    This program is distributed in the hope that it will
+//    be useful, but WITHOUT ANY WARRANTY; without even the
+//    implied warranty of MERCHANTABILITY or
+//    FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
+//
+//    You should have received a copy of the
+//    GNU General Public License along with this program.
+//    If not, see <http://www.gnu.org/licenses/>.
+//---------------------------------------------------------+
+//!
+//!	\file		UbiMultiChannelFactory.h
+//!
+//!	\author		Philipp Renoth <fff@aitch.de>
+//!	\brief		Information of computation data.
+//!	\copyright	GNU General Public License v3 2012.
+//---------------------------------------------------------+
 
 #ifndef __ubimultichannelfactory_h__included__
 #define __ubimultichannelfactory_h__included__
 
-#include "UbiMultiChannel.h"
+#include "../Buffer/Complex/Ubiquitous/UbiMultiChannel.h"
 
-#include "../Host/IHostMultiChannel.h"
-#include "../Host/HostMultiChannel.h"
-#include "../Host/HostMultiChannelPreallocated.h"
+#include "../Buffer/Complex/Host/IHostMultiChannel.h"
+#include "../Buffer/Complex/Host/HostMultiChannel.h"
+#include "../Buffer/Complex/Host/HostMultiChannelPreallocated.h"
 
-#include "../Device/DevMultiChannel.h"
+#include "../Buffer/Complex/Device/DevMultiChannel.h"
 
 using namespace fff::Buffer::Complex::Host;
 using namespace fff::Buffer::Complex::Device;
 
 namespace fff {
-namespace Buffer {
-namespace Complex {
-namespace Ubiquitous {
+namespace Factory {
 
     template<
         class SampleType
@@ -128,8 +157,6 @@ namespace Ubiquitous {
         }
     };
 
-}
-}
 }
 }
 

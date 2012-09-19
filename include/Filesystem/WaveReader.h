@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffWavReader.h
+// fff/include/Filesystem/WavReader.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,15 +24,15 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffWavReader.h
+//!	\file		WavReader.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Reads a PCM encoded wave file.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fffwavreader_h__included__
-#	define __fffwavreader_h__included__
+#ifndef __wavreader_h__included__
+#	define __wavreader_h__included__
 
 #	include <fstream>
 #	include <climits>

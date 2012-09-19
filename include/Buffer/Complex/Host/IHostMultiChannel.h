@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffICvMChBuf.h
+// fff/include/Buffer/Complex/Host/IHostMultiChannel.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffICvMChBuf.h
+//!	\file		IHostMultiChannel.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Interface of a multi channel host buffer.
@@ -56,6 +56,9 @@ public:
 		IHostMultiChannel<SampleType> My;
 
 public:
+    virtual ~IHostMultiChannel()
+    {
+    }
 
 	virtual SampleType *getRawReal(
 		UInt channelIndex) = 0;

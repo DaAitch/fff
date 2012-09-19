@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/src/fffCompiler.cpp
+// fff/src/Computing/Compiler.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCompiler.cpp
+//!	\file		Compiler.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Let OpenCL compile source and manages

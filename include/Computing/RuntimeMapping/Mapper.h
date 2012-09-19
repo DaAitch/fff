@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffComputingMap.h
+// fff/include/Computing/RuntimeMapping/Mapper.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffComputingMap.h
+//!	\file		Mapper.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Runtime problem-solution mapping of given
@@ -32,8 +32,8 @@
 //!				overflows, but best usage of resources.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
-#ifndef __fffcomputingmap_h__included__
-#define __fffcomputingmap_h__included__
+#ifndef __computingmap_h__included__
+#define __computingmap_h__included__
 
 #include "../../_intern.h"
 #include "ComputingData.h"

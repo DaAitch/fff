@@ -39,6 +39,7 @@
 #include "buffer.h"
 #include "computing.h"
 #include "filesystem.h"
+#include "factory.h"
 
 
 

@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/src/Testing/OpenCLC99.cpp
+// fff/src/Testing/testopenclc99.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		OpenCLC99.cpp
+//!	\file		testopenclc99.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Testing OpenCL C99 Code.
@@ -646,13 +646,23 @@ fff_TEST_BEGIN_IMPL(openclc99, dconv)
     Sample
         x[xsize]={0,1,2,2,0,1,2,4},
         h[hsize]={0,1,2,1,2},
-        y[ysize];
+        y[ysize],
+        y2[ysize];
 
+    // x ** h
     for(UInt i = 0; i < ysize; ++i)
     {
         y[i] = dconv(
             x, xsize,
             h, hsize,
+            i);
+    }
+    // h ** x
+    for(UInt i = 0; i < ysize; ++i)
+    {
+        y2[i] = dconv(
+            h, hsize,
+            x, xsize,
             i);
     }
 
@@ -687,6 +697,10 @@ fff_TEST_BEGIN_IMPL(openclc99, dconv)
     //                                        g
     fff_TEST_EQ(y[11],                        4*2);
     //                                         
+
+    fff_TEST_EQ(
+        variance(y, y2, ysize), 0.f);
+
     }
 
 

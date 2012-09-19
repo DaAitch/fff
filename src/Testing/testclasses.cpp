@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/src/Testing/Classes.cpp
+// fff/src/Testing/testclasses.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		Classes.cpp
+//!	\file		testclasses.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Testing FFF classes.
@@ -41,6 +41,7 @@
 #include "../../include/buffer.h"
 #include "../../include/computing.h"
 #include "../../include/filesystem.h"
+#include "../../include/factory.h"
 //---------------------------------------------------------+
 
 
@@ -71,6 +72,7 @@ using namespace fff::Buffer::Complex::Device;
 using namespace fff::Buffer::Complex::Host;
 using namespace fff::Buffer::Complex::Ubiquitous;
 using namespace fff::Filesystem;
+using namespace fff::Factory;
 
 //---------------------------------------------------------+
 //! IMPLEMENTATION
@@ -1463,7 +1465,7 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
     
     fff_TEST_OK(env);
     fff_TEST_OK(c);
-    /*
+    
     fff_TEST_BEGIN_SECTION("invalid Fast Convolution input")
 
         mcf::multichannel
@@ -1515,7 +1517,6 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
 
         
 
-        //UbiMultiChannelBase<Float> ux(
 
         const Float zero[] = {0,0,0,0,0,0,0,0,0,0};
 
@@ -1671,62 +1672,114 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         delete [] xv;
 
     fff_TEST_END_SECTION()
-    */
+    
     /*
-    fff_TEST_BEGIN_SECTION("testing huge ir")
+    fff_TEST_BEGIN_SECTION("testing huge ir fconv")
         
-        const UInt f = 1;
+        const UInt f = 0;
 
         WaveReader<Float> fh("h.wav");
         WaveReader<Float> fx("x.wav");
-        WaveWriter<Float> fy("y.wav", fx.getSampleRate(), fx.getChannelCount());
+        WaveWriter<Float> fy("y-fconv.wav", fx.getSampleRate(), fx.getChannelCount());
         
         ComputingData<Float> cd(fh.getSampleCount());
         DeviceProperties devprops(env.getDevice());
         Mapper map(cd, devprops, f);
 
-        UbiMultiChannel<Float> b(env, CL_MEM_READ_ONLY, fh.getChannelCount(), fff_POW2(map.getLb2N()));
-        UbiMultiChannel<Float> a(env, CL_MEM_READ_ONLY, fh.getChannelCount(), fff_POW2(map.getLb2N()));
-        UbiMultiChannel<Float> H(env, CL_MEM_READ_WRITE, fh.getChannelCount(), fff_POW2(map.getLb2N()));
+        mcf::multichannel b, a, H;
+        mcf::create(b, env, CL_MEM_READ_ONLY, fh.getChannelCount(), fff_POW2(map.getLb2N()));
+        mcf::create(a, env, CL_MEM_READ_ONLY, fh.getChannelCount(), fff_POW2(map.getLb2N()));
+        mcf::create(H, env, CL_MEM_READ_WRITE, fh.getChannelCount(), fff_POW2(map.getLb2N()));
 
-        for(UInt ch = 0; ch < a.getHostBuffer().getChannelCount(); ++ch)
-            a.getHostBuffer().getRawReal(ch)[0] = 1.f;
+        for(UInt ch = 0; ch < a.host->getChannelCount(); ++ch)
+            a.host->getRawReal(ch)[0] = 1.f;
 
-        fh.readFile(b.getHostBuffer());
-        Float *bsl = b.getHostBuffer().getRawReal(0);
-        Float *bsr = b.getHostBuffer().getRawReal(1);
+        fh.readFile(*(b.host));
+        Float *bsl = b.host->getRawReal(0);
+        Float *bsr = b.host->getRawReal(1);
 
-        TransferFunction<Float> tra(c, b, a, H);
+        TransferFunction<Float> tra(c, *b, *a, *H);
 
         tra.invokeAndWait();
 
-        UbiMultiChannel<Float> s(env, CL_MEM_READ_ONLY, fh.getChannelCount(), fh.getSampleCount()-1);
-        UbiMultiChannel<Float> x(env, CL_MEM_READ_ONLY, fh.getChannelCount(), fx.getSampleCount() + fh.getSampleCount());
-        UbiMultiChannel<Float> y(env, CL_MEM_READ_WRITE, fh.getChannelCount(), fx.getSampleCount() + fh.getSampleCount());
+        HostMultiChannel<Float> x(fh.getChannelCount(), fx.getSampleCount() + fh.getSampleCount());
+        HostMultiChannel<Float> y(fh.getChannelCount(), fx.getSampleCount() + fh.getSampleCount());
 
-        fx.readFile(x.getHostBuffer());
+        fx.readFile(x);
 
-        x.getMultiBuffer() *= 0.5;
+        x *= 0.5f;
 
         FastConvolution<Float> fconv(
             c,
-            s,
-            x,
-            H,
-            y,
+            fh.getSampleCount()-1,
+            x.getSampleCount(),
+            *H,
             f);
-        fconv.invokeAndWait();
+        fconv.invoke(
+            x.getSampleCount(),
+            x,
+            y);
 
-        y.getMultiBuffer() *= 0.05f;
-        y.getMultiBuffer() += x.getMultiBuffer();
+        y *= 0.05f;
+        y += x;
+
+
+        // fstream file("out.txt", ios::out);
+        // file<<"channels: " << y.getChannelCount() << std::endl;
+        // // for(UInt ch = 0; ch < y.getChannelCount(); ++ch)
+        // {
+        //     for(UInt s = 0; s < y.getHostBuffer().getSampleCount(); ++s)
+        //     {
+       //          Float smp = y.getHostBuffer().getRawReal(ch)[s];
+        //         if(smp > 1.f)
+        //         {
+        //             file << "Sample[" << ch << "][" << s << "] = " << smp << std::endl;
+        //         }
+        //     }
+       //  }
+        // file.close();
+
+        
+
+        fy.writeFile(y);
+
+    fff_TEST_END_SECTION()
+    */
+    /*
+    fff_TEST_BEGIN_SECTION("testing huge ir dconv")
+        
+        WaveReader<Float> fh("h.wav");
+        WaveReader<Float> fx("x.wav");
+        WaveWriter<Float> fy("y-dconv.wav", fx.getSampleRate(), fx.getChannelCount());
+
+        mcf::multichannel x, h, y;
+        mcf::create(x, env, CL_MEM_READ_ONLY, fx.getChannelCount(), fx.getSampleCount());
+        mcf::create(h, env, CL_MEM_READ_ONLY, fh.getChannelCount(), fh.getSampleCount());
+        mcf::create(y, env, CL_MEM_WRITE_ONLY, fh.getChannelCount(), fx.getSampleCount() + fh.getSampleCount() - 1);
+
+        fh.readFile(*(h.host));
+        fx.readFile(*(x.host));
+
+        HostMultiChannel<Float> *px, *py;
+        px = (HostMultiChannel<Float> *)x.host;
+        py = (HostMultiChannel<Float> *)y.host;
+
+        (*px) *= 0.5f;
+
+        Convolution<Float> conv(c, *x, *h, *y);
+        conv.invokeAndWait();
+
+        (*py) *= 0.05f;
+        (*py) += (*px);
+
 
         fstream file("out.txt", ios::out);
-        file<<"channels: " << y.getHostBuffer().getChannelCount() << std::endl;
-        for(UInt ch = 0; ch < y.getHostBuffer().getChannelCount(); ++ch)
+        file<<"channels: " << y.host->getChannelCount() << std::endl;
+        for(UInt ch = 0; ch < y.host->getChannelCount(); ++ch)
         {
-            for(UInt s = 0; s < y.getHostBuffer().getSampleCount(); ++s)
+            for(UInt s = 0; s < y.host->getSampleCount(); ++s)
             {
-                Float smp = y.getHostBuffer().getRawReal(ch)[s];
+                Float smp = y.host->getRawReal(ch)[s];
                 if(smp > 1.f)
                 {
                     file << "Sample[" << ch << "][" << s << "] = " << smp << std::endl;
@@ -1737,11 +1790,11 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
 
         
 
-        fy.writeFile(y.getHostBuffer());
+        fy.writeFile(*py);
 
     fff_TEST_END_SECTION()
     */
-    /*
+    
     fff_TEST_BEGIN_SECTION("preallocated test")
         mcf::multichannel b, a, H;
         
@@ -1794,7 +1847,7 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
         x.alloc(1, 100);
         y.alloc(1, 100);
 
-        FastConvolution<Float> fconv(c, 2, 10, *H, 1);
+        FastConvolution<Float> fconv(c, 2, 100, *H, 1);
         fff_TEST_OK(fconv);
 
         mcf::multichannel s;
@@ -2235,7 +2288,7 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
             
             if(stopWatch)
             {
-                fff_TESTINGSTREAM("mesurements");
+                fff_TESTINGSTREAM("measurements");
                 ~(fff_TESTINGSTREAM >> "H" << H.host->getSampleCount() << " samples");
                 ~(fff_TESTINGSTREAM >> "round 0" << t0.micros() << " us");
                 ~(fff_TESTINGSTREAM >> "round 1" << t1.micros() << " us");
@@ -2267,200 +2320,249 @@ fff_TEST_BEGIN_IMPL(classes, FastConvolution)
 
 
     fff_TEST_END_SECTION()
-    */
+    
+    // GNUPLOT DATA
+    /*
     fff_TEST_BEGIN_SECTION("hardcore test: default vs. unrolled/cpu vs. gpu")
-        // values do not matter!
+        // values do not matters!
         // remember EXPECT overhead is
 
         OpenCLEnvironment env1(CL_DEVICE_TYPE_CPU);
         OpenCLEnvironment env2(CL_DEVICE_TYPE_GPU);
 
-        Compiler c1(env1, Compiler::CL_LOCATION, Worker(), Unroll());
-        Compiler c2(env1, Compiler::CL_LOCATION, Worker(), Unroll(True));
-        Compiler c3(env2, Compiler::CL_LOCATION, Worker(), Unroll());
-        Compiler c4(env2, Compiler::CL_LOCATION, Worker(), Unroll(True));
+        Compiler c1(env1);
+        //Compiler c2(env1, Compiler::CL_LOCATION, Worker(), Unroll(True));
+        Compiler c3(env2);
+        //Compiler c4(env2, Compiler::CL_LOCATION, Worker(), Unroll(True));
 
         c1.build();
-        c2.build();
+        //c2.build();
         c3.build();
-        c4.build();
+        //c4.build();
         fff_TEST_OK(c1);
-        fff_TEST_OK(c2);
+        //fff_TEST_OK(c2);
         fff_TEST_OK(c3);
-        fff_TEST_OK(c4);
+        //fff_TEST_OK(c4);
 
-        ofstream lf("hardcoretest.csv");
+        ofstream lf("runtimetest.gnu.dat");
+
+        lf << std::setprecision(5);
 
         lf
-        << "\"#\";"
-        << "\"Compiler Type\";"
-        << "\"Device Type\";"
-        << "\"Sample Rate\";"
-        << "\"IR Time\";"
-        << "\"Kernel Size\";"
-        << "\"H Size\";"
-        << "\"In/Out Size\";"
-        << "\"f\";"
-        << "\"Buffer Size\";"
-        << "\"Fast Conv Duration\";"
-        << "\"Duration\";"
-        << "\"Fast Conv Throughput Rate\";"
-        << "\"Throughput Rate\";"
-        << "\"Fast Conv Realtime\";"
-        << "\"Realtime\";"
+        //<< "# "
+        //<< "Compiler Type"
+        //<< "Device Type "
+        << "#Sample Rate "
+        << "IR Time "
+        << "Kernel Size "
+        << "H Size "
+        << "In/Out Size "
+        << "f "
+        //<< "Buffer Size "
+        << "Fast Conv Duration "
+        << "Conv Duration "
+        << "Fast Conv Throughput Rate "
+        << "Conv Throughput Rate "
+        << "Fast Conv Realtime Ratio "
+        << "Conv Realtime Ratio "
+        //<< "Fast Conv Realtime "
+        //<< "Conv Realtime "
         << std::endl;
 
         const UInt
-            compilers = 4,
-            times = 4,
-            rates = 2,
-            xs = 6,
-            fs = 2;
+            compilers = 2,
+            times = 6,
+            rates = 1,
+            xs = 13,
+            fs = 1,
+            ticks = 1;
 
 
-        Compiler *compiler[compilers] = {&c1,&c2,&c3,&c4};
-        const UInt time[times] = {1, 5, 10, 20};
-        const UInt rate[rates] = {44100, 48000};
-        const UInt x[xs] = {10, 100, 1000, 10000, 100000, 100000};
+        Compiler *compiler[compilers] = {
+        &c1,//&c2,
+        &c3 //,&c4
+        };
+        const UInt time[times] = {1, 5, 10, 20, 30, 40};
+        const UInt rate[rates] = {44100};
+        const UInt x[xs] = {10, 33, 100, 333, 1000, 3333, 10000, 33333, 100000, 333333, 1000000, 3333333, 10000000};
         const UInt f[fs] = {0}; // throughput
 
-        const UInt tests = compilers * times * rates * xs * fs;
+        const UInt tests = compilers * times * rates * xs * fs * ticks;
 
         UInt testcounter = 0;
 
         for(UInt ccompiler = 0; ccompiler < compilers; ++ccompiler)
-        for(UInt ctime = 0; ctime < times; ++ctime)
-        for(UInt crate = 0; crate < rates; ++crate)
-        for(UInt cx = 0; cx < xs; ++cx)
-        for(UInt cf = 0; cf < fs; ++cf)
         {
-            ++testcounter;
-
             Compiler *useCompiler = compiler[ccompiler];
-            const UInt useTime = time[ctime];
-            const UInt useRate = rate[crate];
-            const UInt useX = x[cx];
-            const UInt useF = f[cf];
-            const UInt useM = useTime * useRate;
-
-            ComputingData<Float> cd(useM);
-            DeviceProperties devprops(useCompiler->getEnv().getDevice());
-            Mapper map(cd, devprops, useF);
-            UInt overlapSize = cl::calcOverlapSaveSampleCount(useX, map.getLb2N(), useM);
-
-            UInt bufSize = // in bytes
-            2 * ( // stereo
-                  2*(useM+useX) // dual input (for not overlapping)
-                + 2*overlapSize // for fft and ifft arranging
-                + useX          // output
-                + fff_POW2(map.getLb2N()) // H
-            )
-            * sizeof(Float);
-            
-            
             String compilerType(useCompiler->getUnroll().isUnrolled()?"unrolled":"default");
             String deviceType((useCompiler->getEnv().isCPU()?"CPU":(useCompiler->getEnv().isGPU()?"GPU":"Unknown")));
-            UInt HSize = fff_POW2(map.getLb2N());
-            UInt bufferSize = (UInt)((Float)bufSize/1024.f/1024.f);
 
-            fff_TESTINGSTREAM("Test case");
-            ~(fff_TESTINGSTREAM >> "#" << testcounter << "/" << tests);
-            ~(fff_TESTINGSTREAM >> "compiler" << compilerType);
-            ~(fff_TESTINGSTREAM >> "device" << deviceType);
-            ~(fff_TESTINGSTREAM >> "rate" << useRate << " Hz");
-            ~(fff_TESTINGSTREAM >> "time" << useTime << " s");
-            ~(fff_TESTINGSTREAM >> "M" << useM << " samples");
-            ~(fff_TESTINGSTREAM >> "H" << HSize << " samples");
-            ~(fff_TESTINGSTREAM >> "x, y" << useX << " samples");
-            ~(fff_TESTINGSTREAM >> "f" << useF << "");
-            ~(fff_TESTINGSTREAM >> "~buffer size" << bufferSize << " MiB");
-                
-            if(bufSize < devprops.getGlobalMemorySize())
+            lf << "#" << deviceType << " " << compilerType << std::endl;
+
+            for(UInt ctime = 0; ctime < times; ++ctime)
+            for(UInt crate = 0; crate < rates; ++crate)
             {
-                ~(fff_TESTINGSTREAM >> "start");
-                mcf::multichannel H;
-                mcf::create(H, useCompiler->getEnv(), CL_MEM_READ_ONLY, 2, fff_POW2(map.getLb2N()));
-                initSamples(H.host->getRawReal(0), H.host->getSampleCount(), 1.f);
-                initSamples(H.host->getRawReal(1), H.host->getSampleCount(), 1.f);
-                (*H).smartSampleLength();
-
-                HostMultiChannel<Float> x(2, useX), y(2, useX);
-
-                UInt fmicros, micros;
-
-                // fast conv
-                {
-                    FastConvolution<Float> fconv(*useCompiler, useM-1, useX, *H, useF);
-
-                    hrt t;
-                    fconv.invoke(useX, x, y);
-                    t.stop();
-
-                    fmicros = (UInt)t.micros();
-                }
-
-                {
-                    DevMultiChannel<Float> dx(useCompiler->getEnv(), CL_MEM_READ_ONLY, x.getChannelCount(), x.getSampleCount());
-                    DevMultiChannel<Float> dy(useCompiler->getEnv(), CL_MEM_WRITE_ONLY, x.getChannelCount(), x.getSampleCount() + useM-1);
-                    DevMultiChannel<Float> dh(useCompiler->getEnv(), CL_MEM_READ_ONLY, x.getChannelCount(), useM);
-
-                    mcf::multichannel mx, my, mh;
-                    mcf::create(mx, dx);
-                    mcf::create(mh, dh);
-                    mcf::create(my, dy);
-
-                    (*mx).smartSampleLength();
-                    (*mh).smartSampleLength();
-                    (*my).smartSampleLength();
-
-                    Convolution<Float> conv(*useCompiler, *mx, *mh, *my);
-                    hrt t;
-                    conv.invokeAndWait();
-                    t.stop();
-
-                    micros = (UInt)t.micros();
-                }
-
-                UInt fconvThroughputRate = (UInt)((Float)useX*1000000.f/(Float)fmicros);
-                UInt convThroughputRate = (UInt)((Float)useX*1000000.f/(Float)micros);
-                String fconvRealTime((((Float)useX/(Float)useRate) * 1000000.f >= (Float)fmicros)?"yes":"no");
-                String convRealTime((((Float)useX/(Float)useRate) * 1000000.f >= (Float)micros)?"yes":"no");
-                
-                ~(fff_TESTINGSTREAM >> "fconv runtime" << fmicros << " us");
-                ~(fff_TESTINGSTREAM >> "fconv throughput rate" << fconvThroughputRate << " samples/s");
-                ~(fff_TESTINGSTREAM >> "fconv realtime" << fconvRealTime);
-
-                ~(fff_TESTINGSTREAM >> "conv runtime" << micros << " us");
-                ~(fff_TESTINGSTREAM >> "conv throughput rate" << convThroughputRate << " samples/s");
-                ~(fff_TESTINGSTREAM >> "conv realtime" << convRealTime);
-
-                lf
-                << testcounter << ";"
-                << compilerType << ";"
-                << deviceType << ";"
-                << useRate << ";"
-                << useTime << ";"
-                << useM << ";"
-                << HSize << ";"
-                << useX << ";"
-                << useF << ";"
-                << bufferSize << ";"
-                << fmicros << ";"
-                << micros << ";"
-                << fconvThroughputRate << ";"
-                << convThroughputRate << ";"
-                << fconvRealTime << ";" 
-                << convRealTime << std::endl;
-            }
-            else
+            for(UInt cx = 0; cx < xs; ++cx)
+            for(UInt cf = 0; cf < fs; ++cf)
+            for(UInt t = 0; t < ticks; ++t)
             {
-                ~(fff_TESTINGSTREAM >> "buffer too big");
-            }
+            
+                    ++testcounter;
 
-            fff_TESTINGSTREAM();
+                
+                    const UInt useTime = time[ctime];
+                    const UInt useRate = rate[crate];
+                    const UInt useX = x[cx];
+                    const UInt useF = f[cf];
+                    const UInt useM = useTime * useRate;
+
+                    ComputingData<Float> cd(useM);
+                    DeviceProperties devprops(useCompiler->getEnv().getDevice());
+                    Mapper map(cd, devprops, useF);
+                    UInt overlapSize = cl::calcOverlapSaveSampleCount(useX, map.getLb2N(), useM);
+
+                    UInt bufSize = // in bytes
+                    2 * ( // stereo
+                          2*(useM+useX) // dual input (for not overlapping)
+                        + 2*overlapSize // for fft and ifft arranging
+                        + useX          // output
+                        + fff_POW2(map.getLb2N()) // H
+                    )
+                    * sizeof(Float);
+            
+            
+                
+                    UInt HSize = fff_POW2(map.getLb2N());
+                    UInt bufferSize = (UInt)((Float)bufSize/1024.f/1024.f);
+
+                    try
+                    {
+                    fff_TESTINGSTREAM("Test case");
+                    ~(fff_TESTINGSTREAM >> "#" << testcounter << "/" << tests);
+                    ~(fff_TESTINGSTREAM >> "compiler" << compilerType);
+                    ~(fff_TESTINGSTREAM >> "device" << deviceType);
+                    ~(fff_TESTINGSTREAM >> "rate" << useRate << " Hz");
+                    ~(fff_TESTINGSTREAM >> "time" << useTime << " s");
+                    ~(fff_TESTINGSTREAM >> "M" << useM << " samples");
+                    ~(fff_TESTINGSTREAM >> "H" << HSize << " samples");
+                    ~(fff_TESTINGSTREAM >> "x, y" << useX << " samples");
+                    ~(fff_TESTINGSTREAM >> "f" << useF << "");
+                    ~(fff_TESTINGSTREAM >> "~buffer size" << bufferSize << " MiB");
+                
+                    if(bufSize < devprops.getGlobalMemorySize())
+                    {
+                        ~(fff_TESTINGSTREAM >> "start");
+                        mcf::multichannel H;
+                        mcf::create(H, useCompiler->getEnv(), CL_MEM_READ_ONLY, 2, fff_POW2(map.getLb2N()));
+                        initSamples(H.host->getRawReal(0), H.host->getSampleCount(), 1.f);
+                        initSamples(H.host->getRawReal(1), H.host->getSampleCount(), 1.f);
+                        (*H).smartSampleLength();
+
+                        HostMultiChannel<Float> x(2, useX), y(2, useX);
+
+                        UInt fmicros=0, micros=0;
+
+                        // fast conv
+                        {
+                            FastConvolution<Float> fconv(*useCompiler, useM-1, useX, *H, useF);
+
+                            hrt t;
+                            fconv.invoke(useX, x, y);
+                            t.stop();
+
+                            fmicros = (UInt)t.micros();
+                        }
+
+                        bool dconv = false;
+
+                        if(useM * useX < 500000000)
+                        //if(useX <= 100000 && useM <= 100000)
+                        {
+                            dconv = true;
+                            DevMultiChannel<Float> dx(useCompiler->getEnv(), CL_MEM_READ_ONLY, x.getChannelCount(), x.getSampleCount());
+                            DevMultiChannel<Float> dy(useCompiler->getEnv(), CL_MEM_WRITE_ONLY, x.getChannelCount(), x.getSampleCount() + useM-1);
+                            DevMultiChannel<Float> dh(useCompiler->getEnv(), CL_MEM_READ_ONLY, x.getChannelCount(), useM);
+
+                            mcf::multichannel mx, my, mh;
+                            mcf::create(mx, dx);
+                            mcf::create(mh, dh);
+                            mcf::create(my, dy);
+
+                            (*mx).smartSampleLength();
+                            (*mh).smartSampleLength();
+                            (*my).smartSampleLength();
+
+                            Convolution<Float> conv(*useCompiler, *mx, *mh, *my);
+                            hrt t;
+                            conv.invokeAndWait();
+                            t.stop();
+
+                            micros = (UInt)t.micros();
+                        }
+
+                        UInt fconvThroughputRate = (UInt)((Float)useX*1000000.f/(Float)fmicros);
+                        UInt convThroughputRate = (UInt)((Float)useX*1000000.f/(Float)micros);
+                        Float fconvRatio = ((Float)useX / (Float)useRate) * 1000000.f / (Float)fmicros;
+                        Float convRatio = ((Float)useX / (Float)useRate) * 1000000.f / (Float)micros;
+                        String fconvRealTime((((Float)useX/(Float)useRate) * 1000000.f >= (Float)fmicros)?"yes":"no");
+                        String convRealTime((((Float)useX/(Float)useRate) * 1000000.f >= (Float)micros)?"yes":"no");
+                
+                        ~(fff_TESTINGSTREAM >> "fconv runtime" << fmicros << " us");
+                        ~(fff_TESTINGSTREAM >> "fconv throughput rate" << fconvThroughputRate << " samples/s");
+                        ~(fff_TESTINGSTREAM >> "fconv realtime" << fconvRealTime);
+
+                        if(dconv)
+                        {
+                            ~(fff_TESTINGSTREAM >> "conv runtime" << micros << " us");
+                            ~(fff_TESTINGSTREAM >> "conv throughput rate" << convThroughputRate << " samples/s");
+                            ~(fff_TESTINGSTREAM >> "conv realtime" << convRealTime);
+                        }
+
+                        lf
+                        //<< testcounter << " "
+                        //<< compilerType << " "
+                        //<< deviceType << " "
+                        << useRate << " "
+                        << useTime << " "
+                        << useM << " "
+                        << HSize << " "
+                        << useX << " "
+                        << useF << " "
+                        //<< bufferSize << " "
+                        << fmicros << " "
+                        << (dconv?micros:0) << " "
+                        << fconvThroughputRate << " "
+                        << (dconv?convThroughputRate:0) << " "
+                        << fconvRatio << " "
+                        << (dconv?convRatio:0) << " "
+                        //<< fconvRealTime << " " 
+                        //<< convRealTime
+                        << std::endl;
+                    }
+                    else
+                    {
+                        ~(fff_TESTINGSTREAM >> "buffer too big");
+                    }
+
+                
+                    }
+                    catch(Exception &e)
+                    {
+                        ~(fff_TESTINGSTREAM >> e.getParent() << e.exception());
+                    }
+                    catch(...)
+                    {
+                        ~(fff_TESTINGSTREAM >> "Unknown error");
+                    }
+
+                    fff_TESTINGSTREAM();
+            }
+            lf << std::endl << std::endl;
+            }
         }
 
     fff_TEST_END_SECTION()
+    */
     
 fff_TEST_END_IMPL()
 

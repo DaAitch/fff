@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffConvKernel.h
+// fff/include/Computing/Kernel/Convolution.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffConvKernel.h
+//!	\file		Convolution.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Discrete (not fast) convolution kernel.
@@ -173,7 +173,7 @@ Convolution(
             // W to use
 			enqueueNDRange(
                 getX().getSampleLength() +
-                getH().getSampleLength(),
+                getH().getSampleLength() - 1,
                 0);
 
 			getY().enqueueHostUpdate(

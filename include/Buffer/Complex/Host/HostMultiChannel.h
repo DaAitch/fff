@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCvHstMChBuf.h
+// fff/include/Buffer/Complex/Host/HostMultiChannel.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCvHstMChBuf.h
+//!	\file		HostMultiChannel.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Multi channel complex vector host buffer.
@@ -319,8 +319,7 @@ private:
 			channel < getChannelCount();
 			++channel)
 		{
-			m_channelSamples[channel] = 
-				HostSingleChannel<MySample>(sampleCount);
+			m_channelSamples[channel].alloc(sampleCount);
 		}
 
 		fff_EXPECT_TRUE(isAllocated());

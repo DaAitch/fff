@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffFileReader.h
+// fff/include/Filesystem/FileReader.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,15 +24,15 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffFileReader.h
+//!	\file		FileReader.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Simple reads whole file.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __ffffilereader_h__included__
-#	define __ffffilereader_h__included__
+#ifndef __filereader_h__included__
+#	define __filereader_h__included__
 
 #	include "../_intern/_base.h"
 #	include <fstream>

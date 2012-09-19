@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/Testing/OpenCLC99.h
+// fff/include/Testing/testopenclc99.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,10 +24,10 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffTesting.h
+//!	\file		testopenclc99.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		fff testing functions.
+//!	\brief		testing c99
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 

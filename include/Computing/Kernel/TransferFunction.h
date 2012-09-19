@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffTFuncKernel.h
+// fff/include/Computing/Kernel/TransferFunction.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffTFuncKernel.h
+//!	\file		TransferFunction.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Transfer function kernel gets the spectral
@@ -124,8 +124,6 @@ public:
 			getH().getSampleLength());
 
         fff_EXPECT_VALID_OBJ(getTmp());
-
-		fff_RTCLC_ERR_INIT();
 
         UInt param = 0;
 

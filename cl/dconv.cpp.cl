@@ -72,7 +72,7 @@ Sample dconv(
     )
 {
 	Sample sum = (Sample)0;
-
+    
 	for(
 		UInt j = (i < xsize) ?
 			0 :         // settled
@@ -81,7 +81,8 @@ Sample dconv(
 		i >= j;         // sample i is in settling phase yet
 		++j)
 	{
-		sum += x[i-j] * h[j];
+        if(i >= j && i-j < xsize && j < hsize)
+		    sum += x[i-j] * h[j];
 	}
 
 	return sum;

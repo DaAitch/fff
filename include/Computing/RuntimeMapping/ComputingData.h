@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffComputingData.h
+// fff/include/Computing/RuntimeMapping/ComputingData.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffComputingData.h
+//!	\file		ComputingData.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Information of computation data.

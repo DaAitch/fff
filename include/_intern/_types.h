@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/_intern/__types.h
+// fff/include/_intern/_types.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		__types.h
+//!	\file		_types.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Central type definitions (also OpenCL).

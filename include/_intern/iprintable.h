@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/_fffIPrintable.h
+// fff/include/_intern/iprintable.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		_fffIPrintable.h
+//!	\file		iprintable.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Interface to let objects be printable.

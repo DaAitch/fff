@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCompiler.h
+// fff/include/Computing/Compiler.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCompiler.h
+//!	\file		Compiler.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Let OpenCL compile source and manages
@@ -32,8 +32,8 @@
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fffcompiler_h__included__
-#define __fffcompiler_h__included__
+#ifndef __compiler_h__included__
+#define __compiler_h__included__
 
 #include "../_intern.h"
 #include "OpenCLEnvironment.h"

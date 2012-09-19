@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffV.h
+// fff/include/Buffer/Vector.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffV.h
+//!	\file		Vector.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Linear memory vector to can be copied at
@@ -36,6 +36,8 @@
 #define __vector_h__included__
 
 #include "../_intern.h"
+
+#include <algorithm>
 
 namespace fff {
 namespace Buffer {
@@ -150,13 +152,13 @@ public:
 			m_samples[sampleIndex];
 	}
 
-	UInt getSampleCount() const
+	virtual UInt getSampleCount() const
 	{
 		return
 			m_sampleCount;
 	}
 
-	void alloc(UInt sampleCount)
+	virtual void alloc(UInt sampleCount)
 	{
 		dealloc();
 
@@ -166,7 +168,7 @@ public:
 		init();
 	}
 
-	void dealloc()
+	virtual void dealloc()
 	{
 		if(isAllocated())
 			_dealloc();
@@ -175,7 +177,7 @@ public:
 			isAllocated());
 	}
 
-	void init()
+	virtual void init()
 	{
 		for(
 			UInt i = 0;
@@ -186,7 +188,7 @@ public:
 		}
 	}
 
-	Bool isAllocated() const
+	virtual Bool isAllocated() const
 	{
 		return m_samples != NULL;
 	}
@@ -224,14 +226,14 @@ public:
     My &operator+=(
         const My &rhs)
     {
-        fff_EXPECT(
+
+        UInt sampleCount = min(
             getSampleCount(),
-            ==,
             rhs.getSampleCount());
 
         for(
 			UInt i = 0;
-			i < getSampleCount();
+			i < sampleCount;
 			++i)
 		{
 			fff_ME[i] += rhs[i];
@@ -244,14 +246,14 @@ public:
     My &operator-=(
         const My &rhs)
     {
-        fff_EXPECT(
+
+        UInt sampleCount = min(
             getSampleCount(),
-            ==,
             rhs.getSampleCount());
 
         for(
 			UInt i = 0;
-			i < getSampleCount();
+			i < sampleCount;
 			++i)
 		{
 			fff_ME[i] -= rhs[i];

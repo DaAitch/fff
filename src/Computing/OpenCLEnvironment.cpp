@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/src/fffOpenCLEnvironment.cpp
+// fff/src/Computing/OpenCLEnvironment.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffOpenCLEnvironment.cpp
+//!	\file		OpenCLEnvironment.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		OpenCL environment and helper methods.

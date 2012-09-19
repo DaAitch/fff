@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCvHstSChBuf.h
+// fff/include/Buffer/Complex/Host/HostSingleChannel.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCvHstSChBuf.h
+//!	\file		HostSingleChannel.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Single channel complex vector host buffer.

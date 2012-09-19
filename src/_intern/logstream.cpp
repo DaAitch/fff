@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/src/_fffLogStream.cpp
+// fff/src/_intern/logstream.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		_fffLogStream.cpp
+//!	\file		logstream.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Some nicer and independant output streamer.

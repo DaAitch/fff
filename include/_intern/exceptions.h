@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/_fffException.h
+// fff/include/_intern/exceptions.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,10 +24,10 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		_fffException.h
+//!	\file		exceptions.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		Invalid state Exception definition.
+//!	\brief		Invalid state Exception definitions.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 

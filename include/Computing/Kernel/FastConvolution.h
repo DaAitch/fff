@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffFConvKernel.h
+// fff/include/Computing/Kernel/FastConvolution.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffFConvKernel.h
+//!	\file		FastConvolution.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Fast convolution kernel OpenCL interface.
@@ -96,8 +96,6 @@ public:
         m_xsize(
             xsize)
 	{
-
-		fff_RTCLC_ERR_INIT();
 
         fff_EXPECT_VALID_OBJ(compiler);
 
@@ -262,12 +260,8 @@ public:
             enqueueNDRange(
                 getFftCount() * fff_POW2(getLb2W()),
                 fff_POW2(getLb2W()));
-
-            getCompiler().getEnv().getQueue().flush();
                 
 		}
-
-        // getCompiler().getEnv().getQueue().flush();
 
         Events e(channelCount<<1);
 
@@ -283,8 +277,6 @@ public:
             e.m_events[(channel<<1)    ] = eR;
             e.m_events[(channel<<1) + 1] = eI;
         }
-
-        getCompiler().getEnv().getQueue().flush();
 
         for(UInt channel = 0;
             channel < channelCount;

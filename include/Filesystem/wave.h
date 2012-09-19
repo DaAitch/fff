@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffWave.h
+// fff/include/Filesystem/wave.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffWave.h
+//!	\file		wave.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Some wave constants and definitions.

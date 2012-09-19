@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/src/fffDevProps.cpp
+// fff/src/Computing/RuntimeMapping/DeviceProperties.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffDevProps.cpp
+//!	\file		DeviceProperties.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Device properties like memory sizes.

@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffTesting.h
+// fff/include/Testing/testclasses.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,10 +24,10 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffTesting.h
+//!	\file		testclasses.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		fff testing functions.
+//!	\brief		fff testing
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 #ifdef _fff_TEST
@@ -40,6 +40,7 @@
 //---------------------------------------------------------+
 
 //- EXTERNAL INCLUDES -------------------------------------+
+#include <iomanip>
 //---------------------------------------------------------+
 
 //- NAMESPACES --------------------------------------------+

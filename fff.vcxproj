@@ -269,7 +269,7 @@ echo all work done import $(ProjectDir)result.coverage now</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_TEST;_fff_INTERACTIVE_TESTING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_fff_TEST;_fff_INTERACTIVE_TESTING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
@@ -437,7 +437,8 @@ echo all work done import $(ProjectDir)result.coverage now</Command>
     <ClInclude Include="include\Buffer\Complex\Device\DevMultiChannel.h" />
     <ClInclude Include="include\Buffer\Complex\host.h" />
     <ClInclude Include="include\Buffer\Complex\ubiquitous.h" />
-    <ClInclude Include="include\Buffer\Complex\Ubiquitous\UbiMultiChannelFactory.h" />
+    <ClInclude Include="include\factory.h" />
+    <ClInclude Include="include\Factory\UbiMultiChannelFactory.h" />
     <ClInclude Include="include\Computing\Events.h" />
     <ClInclude Include="include\computing.h" />
     <ClInclude Include="include\Computing\kernel.h" />

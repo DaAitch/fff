@@ -27,7 +27,7 @@
 //!	\file		dft.cpp.cl
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
-//!	\brief		???
+//!	\brief		discrete fourier transformation
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 

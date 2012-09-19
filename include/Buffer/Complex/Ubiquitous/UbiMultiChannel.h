@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCvUbiMChBuf.h
+// fff/include/Buffer/Complex/Ubiquitous/UbiMultiChannel.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCvUbiMChBuf.h
+//!	\file		UbiMultiChannel.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Multi channel ubiquitous complex vector

@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCvHstMChBufPreallocated.h
+// fff/include/Buffer/Complex/Host/HostMultiChannelPreallocated.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCvHstMChBufPreallocated.h
+//!	\file		HostMultiChannelPreallocated.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Multi channel complex vector host buffer,

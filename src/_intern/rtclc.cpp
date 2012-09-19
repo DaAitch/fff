@@ -1,8 +1,5 @@
-
-
-
 //---------------------------------------------------------+
-// fff/src/__fffDebugging.cpp
+// fff/src/_intern/rtclc.cpp
 //---------------------------------------------------------+
 //  License:
 //    
@@ -27,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		__fffDebugging.cpp
+//!	\file		rtclc.cpp
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Runtime OpenCL Check functions.

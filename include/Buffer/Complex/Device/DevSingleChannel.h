@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCvDevSChBuf.h
+// fff/include/Buffer/Complex/Device/DevSingleChannel.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCvDevSChBuf.h
+//!	\file		DevSingleChannel.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Single channel complex vector device

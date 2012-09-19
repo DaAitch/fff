@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffOpenCLEnvironment.h
+// fff/include/Computing/OpenCLEnvironment.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,15 +24,15 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffOpenCLEnvironment.h
+//!	\file		OpenCLEnvironment.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		OpenCL environment and helper methods.
 //!	\copyright	GNU General Public License v3 2012.
 //---------------------------------------------------------+
 
-#ifndef __fffOpenCLEnvironment_h__included__
-#define __fffOpenCLEnvironment_h__included__
+#ifndef __openCLEnvironment_h__included__
+#define __openCLEnvironment_h__included__
 
 #include "../_intern.h"
 

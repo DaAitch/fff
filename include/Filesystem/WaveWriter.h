@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffWavWriter.h
+// fff/include/Filesystem/WavWriter.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffWavWriter.h
+//!	\file		WavWriter.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Writes 32bit wave files.

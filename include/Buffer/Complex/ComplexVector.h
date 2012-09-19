@@ -1,5 +1,5 @@
 //---------------------------------------------------------+
-// fff/include/fffCv.h
+// fff/include/Buffer/Complex/ComplexVector.h
 //---------------------------------------------------------+
 //  License:
 //    
@@ -24,7 +24,7 @@
 //    If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------+
 //!
-//!	\file		fffCv.h
+//!	\file		ComplexVector.h
 //!
 //!	\author		Philipp Renoth <fff@aitch.de>
 //!	\brief		Complex vector.
